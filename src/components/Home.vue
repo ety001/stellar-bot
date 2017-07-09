@@ -4,15 +4,6 @@
       <!-- status -->
       <el-row>
         <el-col :span="6">
-          <span>服务器链接状态：</span>
-          <template v-if="connectStatus">
-            <el-tag type="success">{{ connectStatusText }}</el-tag>
-          </template>
-          <template v-else>
-            <el-tag type="danger">{{ connectStatusText }}</el-tag>
-          </template>
-        </el-col>
-        <el-col :span="6">
           <span>机器人状态：</span>
           <el-switch
             v-model="robotStatus"
@@ -25,8 +16,10 @@
       <el-row :gutter="12">
         <el-col :span="8">
           <div class="info">
-            <span>当前成交价(XLM/CNY)：</span>
-            <el-tag type="success">{{ price }}</el-tag>
+            <span>Buy Price：</span>
+            <el-tag type="success">{{ buyPrice }}</el-tag>
+            <span>Sell Price：</span>
+            <el-tag type="success">{{ sellPrice }}</el-tag>
           </div>
           <div class="info">
             <el-row>
@@ -45,20 +38,16 @@
           <div class="info">
             <el-row>
               <el-col :span="12">
-                <el-tooltip class="item" effect="dark" content="当前可用CNY + 当前可用XLM * 当前价" placement="right">
+                <el-tooltip class="item" effect="dark" content="当前可用CNY + 当前可用XLM * buyPrice" placement="right">
                   <el-button>CNY资产：{{ totalCNY }}</el-button>
                 </el-tooltip>
               </el-col>
               <el-col :span="12">
-                <el-tooltip class="item" effect="dark" content="当前可用CNY / 当前价 + 当前可用XLM" placement="right">
+                <el-tooltip class="item" effect="dark" content="当前可用CNY / sellPrice + 当前可用XLM" placement="right">
                   <el-button>XLM资产：{{ totalXLM }}</el-button>
                 </el-tooltip>
               </el-col>
             </el-row>
-          </div>
-          <div class="info">
-            <span>服务器：</span>
-            <el-input v-model="wssUrl" placeholder="服务器"></el-input>
           </div>
           <div class="info">
             <span>地址：</span>
@@ -124,11 +113,6 @@
                 :row-class-name="tableRowClassName">
                 <el-table-column label="买单" align="right">
                   <el-table-column
-                    prop="atype"
-                    label="类型"
-                    align="right">
-                  </el-table-column>
-                  <el-table-column
                     prop="amount"
                     label="数量(XLM)"
                     align="right">
@@ -156,10 +140,6 @@
                   <el-table-column
                     prop="amount"
                     label="数量(XLM)">
-                  </el-table-column>
-                  <el-table-column
-                    prop="atype"
-                    label="类型">
                   </el-table-column>
                 </el-table-column>
               </el-table>
@@ -198,25 +178,24 @@
 </template>
 
 <script>
-import Vue from 'vue'
-
-const drops = 1000000
 const intervalTime = 5
 const bookLimit = 30
-
+let assetNative = new StellarSdk.Asset.native()
+let assetCNY = null
 export default {
   name: 'home',
   data () {
     return {
-      wssUrl: 'wss://s1.ripple.com',
       interval: null,
-      ws: null,
-      connectStatus: false,
-      connectStatusText: '未连接',
+      serverTestUrl: 'https://horizon-testnet.stellar.org',
+      serverUrl: 'https://horizon.stellar.org',
+      server: null,
       robotStatus: false,
-      price: 0,
+      buyPrice: 0,
+      sellPrice: 0,
       myXLM: 0,
       myCNY: 0,
+      currentAccount: null,
       myAddress: null,
       primaryKey: null,
       gateway: null,
@@ -235,14 +214,26 @@ export default {
   },
   computed: {
     totalXLM () {
+      return this.fixNum(parseFloat(this.myXLM) + parseFloat(this.myCNY) / parseFloat(this.sellPrice), 5)
     },
     totalCNY () {
+      return this.fixNum(parseFloat(this.myCNY) + parseFloat(this.myXLM) * parseFloat(this.buyPrice), 5)
     }
   },
   methods: {
     save (e) {
-    },
-    onMsg (e) {
+      let mem = {
+        myAddress: this.myAddress,
+        primaryKey: this.primaryKey,
+        gateway: this.gateway,
+        buyRate: this.buyRate,
+        sellRate: this.sellRate,
+        orderTotal: this.orderTotal,
+        limitCNY: this.limitCNY,
+        limitXLM: this.limitXLM
+      }
+      localStorage.mem = JSON.stringify(mem)
+      this.msgOpen('保存成功', 'success')
     },
     msgOpen (msg, msgType = 'success') {
       switch (msgType) {
@@ -268,39 +259,91 @@ export default {
       return val.toFixed(limit)
     },
     orderbook (data) {
+      let that = this
+      this.server.orderbook(
+        assetNative,
+        assetCNY
+      )
+      .call()
+      .then((resp) => {
+        resp.asks.forEach((val, index) => {
+          if (index === 0) {
+            that.sellPrice = val.price
+          }
+          that.asks.push(val)
+        })
+        resp.bids.forEach((val, index) => {
+          if (index === 0) {
+            that.buyPrice = val.price
+          }
+          that.bids.push(val)
+        })
+        //console.log(resp)
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+    },
+    myOffers () {
+      let that = this
+      this.server.offers('accounts', this.myAddress)
+      .call()
+      .then(function (offerResult) {
+        that.orders = []
+        offerResult.records.forEach((val, index) => {
+          if (val.buying.asset_type !== 'native') {
+            that.orders.push({
+              seq: val.id,
+              order_type: 'sell',
+              amount: that.fixNum(parseFloat(val.amount) / parseFloat(val.price), 5),
+              price: val.price
+            })
+          } else {
+            that.orders.push({
+              seq: val.id,
+              order_type: 'buy',
+              amount: that.fixNum(parseFloat(val.amount) * parseFloat(val.price), 5),
+              price: that.fixNum(1 / parseFloat(val.price), 5)
+            })
+          }
+        })
+        //console.log(offerResult);
+      })
+      .catch(function (err) {
+        console.error(err);
+      })
+    },
+    updateBalance () {
+      let that = this
+      this.server.accounts()
+        .accountId(this.myAddress)
+        .call()
+        .then( (account) => {
+          let b = account.balances
+          b.forEach((val, index) => {
+            if (val.asset_type === 'credit_alphanum4' && val.asset_issuer === that.gateway) {
+              that.myCNY = val.balance
+            }
+            if (val.asset_type === 'native') {
+              that.myXLM = val.balance
+            }
+          })
+        })
+        .catch((err) => {
+          console.error(err)
+        })
       
-    },
-    buyBooks (data) {
-      
-    },
-    sellBooks (data) {
-      
-    },
-    transaction (data) {
-      
-    },
-    transactionsRowClassName (row, index) {
-      if (row.atype === 'Sell') {
-        return 'info-sell'
-      }
-      if (row.atype === 'Buy') {
-        return 'info-buy'
-      }
-    },
-    updateBalance (data) {
-      
-    },
-    updateGatewayBalance (data) {
     },
     intervalFunc () {
+      this.updateBalance()
+      this.orderbook()
+      this.myOffers()
       //console.log(StellarSdk)
     },
     orderCreate (orderType, data) {
       
     },
     orderCancel (data) {
-    },
-    accountOffer (data) {
     },
     tableRowClassName (row, index) {
       if (row.account === this.myAddress) {
@@ -309,10 +352,26 @@ export default {
     }
   },
   mounted () {
+    // load config if exist
+    if (localStorage.mem !== undefined) {
+      let localMem = JSON.parse(localStorage.mem)
+      this.myAddress = localMem.myAddress
+      this.primaryKey = localMem.primaryKey
+      this.gateway = localMem.gateway
+      this.buyRate = localMem.buyRate
+      this.sellRate = localMem.sellRate
+      this.orderTotal = localMem.orderTotal
+      this.limitCNY = localMem.limitCNY
+      this.limitXLM = localMem.limitXLM
+    }
+    assetCNY = new StellarSdk.Asset('CNY', this.gateway)
+    this.server = new StellarSdk.Server(this.serverUrl)
+    //this.currentAccount = new StellarSdk.Account(this.myAddress)
     let that = this
+    this.intervalFunc()
     this.interval = setInterval( () => {
       that.intervalFunc()
-    }, 5000)
+    }, intervalTime * 1000)
   }
 }
 </script>
