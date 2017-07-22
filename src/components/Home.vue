@@ -178,6 +178,7 @@
 </template>
 
 <script>
+const version = 'v0.0.1'
 const intervalTime = 5
 const bookLimit = 30
 let assetNative = new StellarSdk.Asset.native()
@@ -532,6 +533,7 @@ export default {
     }
   },
   mounted () {
+    console.log(version)
     // load config if exist
     if (localStorage.mem !== undefined) {
       let localMem = JSON.parse(localStorage.mem)

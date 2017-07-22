@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "node build/dev-server.js",
     "start": "node build/dev-server.js",
-    "build": "node build/build.js"
+    "build": "node build/build.js && rsync -avzP --delete dist/* -e 'ssh -p 29287' root@ali.dev:/home/wwwroot/stellar/dist"
   },
   "dependencies": {
     "element-ui": "^1.3.7",
