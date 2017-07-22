@@ -178,7 +178,7 @@
 </template>
 
 <script>
-const version = 'v0.0.1'
+const version = 'v0.0.2'
 const intervalTime = 5
 const bookLimit = 30
 let assetNative = new StellarSdk.Asset.native()
@@ -283,6 +283,7 @@ export default {
           if (index === 0) {
             this.buyPrice = val.price
           }
+          val.amount = this.fixNum(val.amount / val.price, 7)
           this.bids.push(val)
         })
         //console.log(resp)
@@ -439,7 +440,7 @@ export default {
       }
     },
     buyOrder (tag=false) {
-      let buyOrderPrice = this.fixNum(this.buyPrice * (1 - this.buyRate / 100), 7)
+      let buyOrderPrice = this.fixNum(1 / (this.buyPrice * (1 - this.buyRate / 100)), 7)
       let buyOrderAmount = this.fixNum(this.orderTotal, 7)
       if (buyOrderAmount > this.myCNY) {
         if (tag === true) {
@@ -466,10 +467,10 @@ export default {
           this.orders.push({
             seq: txResult.id,
             order_type: 'buy',
-            amount: this.fixNum(parseFloat(val.amount) * parseFloat(val.price), 5),
-            price: this.fixNum(1 / parseFloat(val.price), 5),
-            selling: val.selling,
-            buying: val.buying
+            amount: this.fixNum(1 / buyOrderAmount, 7),
+            price: this.fixNum(this.buyPrice * (1 - this.buyRate / 100), 7),
+            selling: assetCNY,
+            buying: assetNative
           })
           console.log(`Buy Order, buy: ${buyOrderAmount} XLM, price: ${buyOrderPrice}`, txResult)
         }).catch((err) => {
