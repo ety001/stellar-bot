@@ -271,6 +271,8 @@ export default {
       .call()
       .then((resp) => {
         // console.log(resp)
+        this.asks = []
+        this.bids = []
         resp.asks.forEach((val, index) => {
           if (index === 0) {
             this.sellPrice = val.price
