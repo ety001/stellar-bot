@@ -198,6 +198,7 @@ export default {
       currentAccount: null,
       myAddress: null,
       primaryKey: null,
+      sourceKeypair: null,
       gateway: null,
       buyRate: null,
       sellRate: null,
@@ -209,7 +210,9 @@ export default {
       transactions: [],
       sequence: 0,
       ledgerSequence: 0,
-      orders: []
+      orders: [],
+      buyOrderNum: 0,
+      sellOrderNum: 0
     }
   },
   computed: {
@@ -256,10 +259,10 @@ export default {
       }
     },
     fixNum (val, limit = 3) {
+      val = parseFloat(val)
       return val.toFixed(limit)
     },
     orderbook (data) {
-      let that = this
       this.server.orderbook(
         assetNative,
         assetCNY
@@ -268,15 +271,15 @@ export default {
       .then((resp) => {
         resp.asks.forEach((val, index) => {
           if (index === 0) {
-            that.sellPrice = val.price
+            this.sellPrice = val.price
           }
-          that.asks.push(val)
+          this.asks.push(val)
         })
         resp.bids.forEach((val, index) => {
           if (index === 0) {
-            that.buyPrice = val.price
+            this.buyPrice = val.price
           }
-          that.bids.push(val)
+          this.bids.push(val)
         })
         //console.log(resp)
       })
@@ -290,60 +293,223 @@ export default {
       .call()
       .then(function (offerResult) {
         that.orders = []
+        // console.log(offerResult)
         offerResult.records.forEach((val, index) => {
           if (val.buying.asset_type !== 'native') {
             that.orders.push({
               seq: val.id,
               order_type: 'sell',
-              amount: that.fixNum(parseFloat(val.amount) / parseFloat(val.price), 5),
-              price: val.price
+              amount: that.fixNum(parseFloat(val.amount) / parseFloat(val.price), 5).toString(),
+              price: that.fixNum(val.price, 5).toString(),
+              selling: val.selling,
+              buying: val.buying
             })
           } else {
             that.orders.push({
               seq: val.id,
               order_type: 'buy',
-              amount: that.fixNum(parseFloat(val.amount) * parseFloat(val.price), 5),
-              price: that.fixNum(1 / parseFloat(val.price), 5)
+              amount: that.fixNum(parseFloat(val.amount) * parseFloat(val.price), 5).toString(),
+              price: that.fixNum(1 / parseFloat(val.price), 5).toString(),
+              selling: val.selling,
+              buying: val.buying
             })
           }
         })
-        //console.log(offerResult);
+        //console.log(offerResult)
       })
       .catch(function (err) {
-        console.error(err);
+        console.error(err)
       })
     },
     updateBalance () {
-      let that = this
       this.server.accounts()
         .accountId(this.myAddress)
         .call()
         .then( (account) => {
           let b = account.balances
           b.forEach((val, index) => {
-            if (val.asset_type === 'credit_alphanum4' && val.asset_issuer === that.gateway) {
-              that.myCNY = val.balance
+            if (val.asset_type === 'credit_alphanum4' && val.asset_issuer === this.gateway) {
+              this.myCNY = val.balance
             }
             if (val.asset_type === 'native') {
-              that.myXLM = val.balance
+              this.myXLM = val.balance
             }
           })
         })
         .catch((err) => {
           console.error(err)
         })
-      
     },
     intervalFunc () {
+      console.log('run')
       this.updateBalance()
       this.orderbook()
       this.myOffers()
-      //console.log(StellarSdk)
+      this.robot()
     },
-    orderCreate (orderType, data) {
-      
+    robot () {
+      if (this.robotStatus === true) {
+        // 计算买入卖出价格
+        let buyPrice = this.fixNum(this.buyPrice * (1 - this.buyRate / 100), 5)
+        let sellPrice = this.fixNum(this.sellPrice * (1 + this.sellRate / 100), 5)
+        // 初始化数据
+        let offersLength = this.orders.length
+        let maxBuyOrderSeq = 0
+        let maxSellOrderSeq = 0
+        let tmpBuyOrders = []
+        let tmpSellOrders = []
+        // console.log(this.buyOrderNum === 0 && this.sellOrderNum === 0)
+        if (this.buyOrderNum === 0 && this.sellOrderNum === 0) {
+          this.buyOrder(true)
+        } else {
+          // 开始处理(先取消订单，再下订单)
+          this.orders.forEach((val, index) => {
+            if (val.order_type === 'buy') {
+              // 取消超出范围的订单
+              if (this.fixNum(val.price, 4) < this.fixNum(buyPrice, 4)) {
+                this.orderCancel(val, `Reason: price change(${this.fixNum(val.price, 2)}, ${this.fixNum(buyPrice, 2)})`)
+              } else {
+                // 获取最晚的一个seq
+                if (val.seq > maxBuyOrderSeq) {
+                  maxBuyOrderSeq = val.seq
+                }
+                // 未处理订单放到临时数组
+                tmpBuyOrders.push(val)
+              }
+            } else {
+              // 取消超出范围的订单
+              if (this.fixNum(val.price, 3) > this.fixNum(sellPrice, 3)) {
+                this.orderCancel(val, `Reason: price change(${this.fixNum(val.price, 2)}, ${this.fixNum(sellPrice, 2)})`)
+              } else {
+                // 获取最晚的一个seq
+                if (val.seq > maxSellOrderSeq) {
+                  maxSellOrderSeq = val.seq
+                }
+                // 未处理订单放到临时数组
+                tmpSellOrders.push(val)
+              }
+            }
+            // 如果已经是最后一次循环
+            if (index === offersLength - 1) {
+              if (tmpBuyOrders.length !== 1 || tmpSellOrders.length !== 1) {
+                console.log('Get in last foreach:', tmpBuyOrders, tmpSellOrders, maxBuyOrderSeq, maxSellOrderSeq)
+              }
+              if (tmpBuyOrders.length > 1) {
+                // 处理多于一个的订单
+                tmpBuyOrders.forEach((subVal, subIndex) => {
+                  if (parseInt(subVal.seq) !== parseInt(maxBuyOrderSeq)) {
+                    this.orderCancel(subVal, 'Reason: order num > 1')
+                  }
+                })
+              } else if (tmpBuyOrders.length === 0) {
+                // 下买单
+                this.buyOrder()
+              }
+              if (tmpSellOrders.length > 1) {
+                // 处理多于一个的订单
+                tmpSellOrders.forEach((subVal, subIndex) => {
+                  if (subVal.seq !== maxSellOrderSeq) {
+                    this.orderCancel(subVal, 'Reason: order num > 1')
+                  }
+                })
+              } else if (tmpSellOrders.length === 0) {
+                // 下卖单
+                this.sellOrder()
+              }
+            }
+          })
+        }
+      }
     },
-    orderCancel (data) {
+    buyOrder (tag=false) {
+      let buyOrderPrice = this.fixNum(this.buyPrice * (1 - this.buyRate / 100), 5)
+      let buyOrderAmount = this.fixNum(this.orderTotal / buyOrderPrice, 5)
+      let that = this
+      this.server.loadAccount(this.myAddress)
+        .then( (account) => {
+          var op = StellarSdk.Operation.manageOffer({
+            selling: assetCNY,
+            buying: assetNative,
+            amount: buyOrderAmount.toString(), // The total amount you're selling
+            price :  buyOrderPrice.toString()// The exchange rate ratio (selling / buying)
+          })
+          let tx = new StellarSdk.TransactionBuilder(account).addOperation(op).build();
+          tx.sign(StellarSdk.Keypair.fromSecret(that.primaryKey))
+          return that.server.submitTransaction(tx)
+        }).then(function(txResult){
+          if (tag === true) {
+            that.sellOrder()
+          }
+          that.orders.push({
+            seq: txResult.id,
+            order_type: 'buy',
+            amount: that.fixNum(parseFloat(val.amount) * parseFloat(val.price), 5),
+            price: that.fixNum(1 / parseFloat(val.price), 5),
+            selling: val.selling,
+            buying: val.buying
+          })
+          console.log(`Buy Order, buy: ${buyOrderAmount} XLM, price: ${buyOrderPrice}`, txResult)
+        }).catch(function(err){
+          console.error('Offer Fail !', err)
+        })
+        .catch((err) => {
+          console.error(err)
+        })
+    },
+    sellOrder () {
+      let sellOrderPrice = this.fixNum(this.sellPrice * (1 + this.sellRate / 100), 5)
+      let sellOrderAmount = this.fixNum(this.orderTotal / sellOrderPrice, 5)
+      let that = this
+      this.server.loadAccount(this.myAddress)
+        .then( (account) => {
+          var op = StellarSdk.Operation.manageOffer({
+            selling: assetNative,
+            buying: assetCNY,
+            amount: sellOrderAmount.toSring(), // The total amount you're selling
+            price : that.fixNum(1 / sellOrderPrice, 5).toString() // The exchange rate ratio (selling / buying)
+          })
+          let tx = new StellarSdk.TransactionBuilder(account).addOperation(op).build();
+          tx.sign(StellarSdk.Keypair.fromSeed(that.primaryKey))
+          return that.server.submitTransaction(tx)
+        }).then(function(txResult){
+          that.orders.push({
+            seq: txResult.id,
+            order_type: 'sell',
+            amount: sellOrderAmount.toString(),
+            price: sellOrderPrice.toString(),
+            selling: assetNative,
+            buying: assetCNY
+          })
+          console.log(`Sell Order, sell: ${sellOrderAmount} XLM, price: ${sellOrderPrice}`, txResult)
+        }).catch(function(err){
+          console.error('Offer Fail !', err)
+        })
+        .catch((err) => {
+          console.error(err)
+        })
+    },
+    orderCancel (offer, reason = '') {
+      let that = this
+      this.server.loadAccount(this.myAddress)
+        .then( (account) => {
+          var op = StellarSdk.Operation.manageOffer({
+            selling: offer.selling,
+            buying: offer.buying,
+            amount: '0',
+            price : offer.price,
+            offerId: offer.seq
+          })
+          let tx = new StellarSdk.TransactionBuilder(account).addOperation(op).build();
+          tx.sign(StellarSdk.Keypair.fromSeed(that.primaryKey))
+          return that.server.submitTransaction(tx)
+        }).then(function(txResult){
+          console.log(`Cancel Order, ${reason}, order_id: ${offer.seq}, sell: ${sellOrderAmount} XLM, price: ${sellOrderPrice}`, txResult)
+        }).catch(function(err){
+          console.error('Offer Fail !', err)
+        })
+        .catch((err) => {
+          console.error(err)
+        })
     },
     tableRowClassName (row, index) {
       if (row.account === this.myAddress) {
@@ -366,11 +532,12 @@ export default {
     }
     assetCNY = new StellarSdk.Asset('CNY', this.gateway)
     this.server = new StellarSdk.Server(this.serverUrl)
+    StellarSdk.Network.usePublicNetwork()
+    this.sourceKeypair = StellarSdk.Keypair.fromSecret(this.primaryKey)
     //this.currentAccount = new StellarSdk.Account(this.myAddress)
-    let that = this
     this.intervalFunc()
     this.interval = setInterval( () => {
-      that.intervalFunc()
+      this.intervalFunc()
     }, intervalTime * 1000)
   }
 }
