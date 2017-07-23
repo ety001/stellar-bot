@@ -17,7 +17,7 @@
                     第一次访问，需要增加你的钱包信息，具体如下图，
                 </p>
                 <p>
-                    <img src="/static/1.png" title="" alt="" width="500" height=""/>
+                    <img src="http://ww1.sinaimg.cn/large/7169dad9ly1fhtv8f4x68j20zw0sy14p.jpg" title="" alt="" width="500" height=""/>
                 </p>
                 <p>
                     在『1』的位置是你的钱包地址，在『2』的位置是私钥，网关地址请使用RippleFox的网关，『GAREELUB43IRHWEASCFBLKHURCGMHE5IF6XSE7EXDLACYHGRHM43RFOX』。
@@ -28,7 +28,7 @@
                     交易参数的设置可以参考下图
                 </p>
                 <p>
-                    <img src="/static/2.png" width="500" height="" title="" alt=""/>
+                    <img src="http://ww1.sinaimg.cn/large/7169dad9ly1fhtv8kqafzj20r80rmwhz.jpg" width="500" height="" title="" alt=""/>
                 </p>
                 <p>
                     （1）图中『买入比』为2%，就是机器人自动下买单的价格是根据当前的『Buy Price』0.14925，降低2%下单，也就是 <em><b>0.14925 * (1 - 2%) = 0.146265</b></em>；
