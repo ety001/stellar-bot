@@ -3,7 +3,7 @@
     <el-col :span="20" :offset="2">
       <el-menu theme="dark" :default-active="activeIndex" :router="true" class="el-menu-demo" mode="horizontal" @select="handleSelect">
         <el-menu-item index="/">首页</el-menu-item>
-        <!--<el-menu-item index="setting">设置</el-menu-item>-->
+        <el-menu-item index="tutorial">教程</el-menu-item>
       </el-menu>
     </el-col>
   </el-row>
@@ -13,7 +13,7 @@
   export default {
     data () {
       return {
-        activeIndex: '/'
+        activeIndex: this.$route.name
       }
     },
     methods: {
@@ -22,7 +22,7 @@
         switch (key) {
           case '/':
             break
-          case 'setting':
+          case 'tutorial':
             break
         }
       }

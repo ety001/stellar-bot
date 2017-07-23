@@ -178,7 +178,7 @@
 </template>
 
 <script>
-const version = 'v0.0.2'
+const version = 'v0.0.3'
 const intervalTime = 5
 const bookLimit = 30
 let assetNative = new StellarSdk.Asset.native()
@@ -442,6 +442,10 @@ export default {
     buyOrder (tag=false) {
       let buyOrderPrice = this.fixNum(1 / (this.buyPrice * (1 - this.buyRate / 100)), 7)
       let buyOrderAmount = this.fixNum(this.orderTotal, 7)
+      if (parseFloat(this.myXLM) >= parseFloat(this.limitXLM / this.sellPrice)) {
+        // 当持有的XLM多于XLM上限，则停止买入
+        return
+      }
       if (buyOrderAmount > this.myCNY) {
         if (tag === true) {
           this.sellOrder()
@@ -480,6 +484,10 @@ export default {
     sellOrder () {
       let sellOrderPrice = this.fixNum(this.sellPrice * (1 + this.sellRate / 100), 7)
       let sellOrderAmount = this.fixNum(this.orderTotal / sellOrderPrice, 7)
+      if (parseFloat(this.myCNY) >= parseFloat(this.limitCNY)) {
+        // 当前持有cny多于cny上限停止下卖单
+        return
+      }
       // console.log(sellOrderAmount)
       if (sellOrderAmount > this.myXLM) {
         return
@@ -563,7 +571,7 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style>
+<style scoped>
   .el-row {
     margin-top: 10px;
   }
