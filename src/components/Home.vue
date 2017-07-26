@@ -178,8 +178,8 @@
 </template>
 
 <script>
-const version = 'v0.0.3.2'
-const intervalTime = 5
+const version = 'v0.0.3.3'
+const intervalTime = 10
 const bookLimit = 30
 let assetNative = new StellarSdk.Asset.native()
 let assetCNY = null
@@ -330,14 +330,15 @@ export default {
         } else {
           if (this.robotStatus === true) {
             // console.log(123)
-            this.buyOrder(true)
-            return false
+            this.buyOrder(true) // 同时下买卖单
           }
+          return [false] // 不执行 robot()
         }
         //console.log(offerResult)
       })
       .then((res) => {
-        if (res === true) {
+        // console.log(res)
+        if (res[0] === true) {
           callback()
         }
       })
@@ -371,7 +372,7 @@ export default {
       this.myOffers(() => {this.robot()})
     },
     robot () {
-      console.log(this.robotStatus)
+      // console.log(this.robotStatus)
       if (this.robotStatus === true) {
         // 计算买入卖出价格
         let buyPrice = this.fixNum(this.buyPrice * (1 - this.buyRate / 100), 5)
@@ -382,7 +383,7 @@ export default {
         let maxSellOrderSeq = 0
         let tmpBuyOrders = []
         let tmpSellOrders = []
-        console.log(this.buyOrderNum, this.sellOrderNum, this.buyOrderNum === 0 && this.sellOrderNum === 0)
+        // console.log(this.buyOrderNum, this.sellOrderNum, this.buyOrderNum === 0 && this.sellOrderNum === 0)
         if (this.buyOrderNum === 0 && this.sellOrderNum === 0) {
           this.buyOrder(true)
         } else {
@@ -402,7 +403,7 @@ export default {
               }
             } else {
               // 取消超出范围的订单
-              if (this.fixNum(val.price, 3) > this.fixNum(sellPrice, 3)) {
+              if (this.fixNum(val.price, 4) > this.fixNum(sellPrice, 4)) {
                 this.orderCancel(val, `Reason: price change(${this.fixNum(val.price, 2)}, ${this.fixNum(sellPrice, 2)})`)
               } else {
                 // 获取最晚的一个seq
@@ -448,8 +449,8 @@ export default {
     buyOrder (tag=false) {
       let buyOrderPrice = this.fixNum(1 / (this.buyPrice * (1 - this.buyRate / 100)), 7)
       let buyOrderAmount = this.fixNum(this.orderTotal, 7)
-      // console.log(buyOrderAmount, this.myCNY, 'kkk')
-      if (buyOrderAmount > this.myCNY) {
+      // console.log(buyOrderAmount, this.myCNY, tag, 'kkk')
+      if (this.fixNum(buyOrderAmount, 7) > this.fixNum(this.myCNY, 7)) {
         if (tag === true) {
           this.sellOrder()
         }
@@ -492,14 +493,17 @@ export default {
     sellOrder () {
       let sellOrderPrice = this.fixNum(this.sellPrice * (1 + this.sellRate / 100), 7)
       let sellOrderAmount = this.fixNum(this.orderTotal / sellOrderPrice, 7)
+
+      // console.log(parseFloat(this.myCNY) , parseFloat(this.limitCNY))
       if (parseFloat(this.myCNY) >= parseFloat(this.limitCNY)) {
         // 当前持有cny多于cny上限停止下卖单
         return
       }
-      // console.log(sellOrderAmount)
-      if (sellOrderAmount > this.myXLM) {
+      // console.log(sellOrderAmount, this.myXLM)
+      if (parseFloat(sellOrderAmount) > parseFloat(this.myXLM)) {
         return
       }
+      // console.log(111)
       this.server.loadAccount(this.myAddress)
         .then((account) => {
           var op = StellarSdk.Operation.manageOffer({
@@ -526,7 +530,7 @@ export default {
         })
     },
     orderCancel (offer, reason = '') {
-      console.log(offer)
+      // console.log(offer)
       this.server.loadAccount(this.myAddress)
         .then((account) => {
           var op = StellarSdk.Operation.manageOffer({
