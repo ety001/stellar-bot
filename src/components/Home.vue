@@ -178,7 +178,7 @@
 </template>
 
 <script>
-const version = 'v0.0.3'
+const version = 'v0.0.3.1'
 const intervalTime = 5
 const bookLimit = 30
 let assetNative = new StellarSdk.Asset.native()
@@ -303,38 +303,43 @@ export default {
         let offerResultLength = offerResult.records.length
         // console.log(offerResultLength)
         if (offerResultLength > 0) {
-          offerResult.records.forEach((val, index) => {
-            if (val.buying.asset_type !== 'native') {
+          return Promise.all(offerResult.records.map((row) => {
+            if (row.buying.asset_type !== 'native') {
               this.orders.push({
-                seq: val.id,
+                seq: row.id,
                 order_type: 'sell',
-                amount: this.fixNum(val.amount, 7),
-                price: this.fixNum(val.price, 7),
-                selling: val.selling,
-                buying: val.buying
+                amount: this.fixNum(row.amount, 7),
+                price: this.fixNum(row.price, 7),
+                selling: row.selling,
+                buying: row.buying
               })
               this.sellOrderNum ++
             } else {
               this.orders.push({
-                seq: val.id,
+                seq: row.id,
                 order_type: 'buy',
-                amount: this.fixNum(parseFloat(val.amount) * parseFloat(val.price), 7),
-                price: this.fixNum(1 / parseFloat(val.price), 7),
-                selling: val.selling,
-                buying: val.buying
+                amount: this.fixNum(parseFloat(row.amount) * parseFloat(row.price), 7),
+                price: this.fixNum(1 / parseFloat(row.price), 7),
+                selling: row.selling,
+                buying: row.buying
               })
               this.buyOrderNum ++
             }
-            if (index === (offerResultLength - 1) && callback !== null) {
-              callback()
-            }
-          })
+            return true
+          }))
         } else {
           if (this.robotStatus === true) {
+            // console.log(123)
             this.buyOrder(true)
+            return false
           }
         }
         //console.log(offerResult)
+      })
+      .then((res) => {
+        if (res === true) {
+          callback()
+        }
       })
       .catch((err) => {
         console.error(err)
@@ -366,6 +371,7 @@ export default {
       this.myOffers(() => {this.robot()})
     },
     robot () {
+      console.log(this.robotStatus)
       if (this.robotStatus === true) {
         // 计算买入卖出价格
         let buyPrice = this.fixNum(this.buyPrice * (1 - this.buyRate / 100), 5)
@@ -376,7 +382,7 @@ export default {
         let maxSellOrderSeq = 0
         let tmpBuyOrders = []
         let tmpSellOrders = []
-        // console.log(this.buyOrderNum, this.sellOrderNum, this.buyOrderNum === 0 && this.sellOrderNum === 0)
+        console.log(this.buyOrderNum, this.sellOrderNum, this.buyOrderNum === 0 && this.sellOrderNum === 0)
         if (this.buyOrderNum === 0 && this.sellOrderNum === 0) {
           this.buyOrder(true)
         } else {
@@ -442,16 +448,18 @@ export default {
     buyOrder (tag=false) {
       let buyOrderPrice = this.fixNum(1 / (this.buyPrice * (1 - this.buyRate / 100)), 7)
       let buyOrderAmount = this.fixNum(this.orderTotal, 7)
-      if (parseFloat(this.myXLM) >= parseFloat(this.limitXLM / this.sellPrice)) {
-        // 当持有的XLM多于XLM上限，则停止买入
-        return
-      }
+      // console.log(buyOrderAmount, this.myCNY, 'kkk')
       if (buyOrderAmount > this.myCNY) {
         if (tag === true) {
           this.sellOrder()
         }
+      }
+      // console.log(parseFloat(this.myXLM), parseFloat(this.limitXLM / this.sellPrice))
+      if (parseFloat(this.myXLM) >= parseFloat(this.limitXLM / this.sellPrice)) {
+        // 当持有的XLM多于XLM上限，则停止买入
         return
       }
+      // console.log(333222)
       this.server.loadAccount(this.myAddress)
         .then((account) => {
           var op = StellarSdk.Operation.manageOffer({
