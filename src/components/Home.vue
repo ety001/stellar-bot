@@ -178,7 +178,7 @@
 </template>
 
 <script>
-const version = 'v0.0.3.3'
+const version = 'v0.0.3.4'
 const intervalTime = 10
 const bookLimit = 30
 let assetNative = new StellarSdk.Asset.native()
@@ -383,7 +383,7 @@ export default {
         let maxSellOrderSeq = 0
         let tmpBuyOrders = []
         let tmpSellOrders = []
-        // console.log(this.buyOrderNum, this.sellOrderNum, this.buyOrderNum === 0 && this.sellOrderNum === 0)
+        console.log(this.buyOrderNum, this.sellOrderNum, this.buyOrderNum === 0 && this.sellOrderNum === 0)
         if (this.buyOrderNum === 0 && this.sellOrderNum === 0) {
           this.buyOrder(true)
         } else {
@@ -450,14 +450,25 @@ export default {
       let buyOrderPrice = this.fixNum(1 / (this.buyPrice * (1 - this.buyRate / 100)), 7)
       let buyOrderAmount = this.fixNum(this.orderTotal, 7)
       // console.log(buyOrderAmount, this.myCNY, tag, 'kkk')
-      if (this.fixNum(buyOrderAmount, 7) > this.fixNum(this.myCNY, 7)) {
+      // 买入量大于拥有量则退出
+      // console.log(parseFloat(buyOrderAmount) > parseFloat(this.myCNY))
+      if (parseFloat(buyOrderAmount) > parseFloat(this.myCNY)) {
+        // 下买单的时候还没有卖单
+        // console.log(tag)
         if (tag === true) {
-          this.sellOrder()
+          // console.log('tag')
+          return this.sellOrder()
         }
+        return
       }
       // console.log(parseFloat(this.myXLM), parseFloat(this.limitXLM / this.sellPrice))
+      // 当持有的XLM多于XLM上限，则停止买入
       if (parseFloat(this.myXLM) >= parseFloat(this.limitXLM / this.sellPrice)) {
-        // 当持有的XLM多于XLM上限，则停止买入
+        // 下买单的时候还没有卖单
+        if (tag === true) {
+          // console.log('tag')
+          return this.sellOrder()
+        }
         return
       }
       // console.log(333222)
@@ -573,9 +584,9 @@ export default {
     this.server = new StellarSdk.Server(this.serverUrl)
     StellarSdk.Network.usePublicNetwork()
     this.sourceKeypair = StellarSdk.Keypair.fromSecret(this.primaryKey)
-    //this.currentAccount = new StellarSdk.Account(this.myAddress)
+    // this.currentAccount = new StellarSdk.Account(this.myAddress)
     this.intervalFunc()
-    this.interval = setInterval( () => {
+    this.interval = setInterval(() => {
       this.intervalFunc()
     }, intervalTime * 1000)
   }
