@@ -178,7 +178,7 @@
 </template>
 
 <script>
-const version = 'v0.0.3.1'
+const version = 'v0.0.3.2'
 const intervalTime = 5
 const bookLimit = 30
 let assetNative = new StellarSdk.Asset.native()
