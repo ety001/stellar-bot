@@ -185,7 +185,6 @@ const version = 'v0.0.4'
 const intervalTime = 10
 const bookLimit = 30
 let assetNative = new StellarSdk.Asset.native()
-let assetCNY = null
 export default {
   name: 'home',
   data () {
@@ -228,11 +227,6 @@ export default {
       return this.fixNum(parseFloat(this.myCNY) + parseFloat(this.myXLM) * parseFloat(this.buyPrice), 5)
     }
   },
-  watch : {
-    gateway: (val) => {
-      assetCNY = new StellarSdk.Asset('CNY', val)
-    }
-  },
   methods: {
     save (e) {
       let mem = {
@@ -273,6 +267,7 @@ export default {
       return val.toFixed(limit)
     },
     orderbook (data) {
+      let assetCNY = new StellarSdk.Asset('CNY', this.gateway)
       this.server.orderbook(
         assetNative,
         assetCNY
@@ -467,6 +462,7 @@ export default {
     buyOrder (tag=false) {
       let buyOrderPrice = this.fixNum(1 / (this.buyPrice * (1 - this.buyRate / 100)), 7)
       let buyOrderAmount = this.fixNum(this.orderTotal, 7)
+      let assetCNY = new StellarSdk.Asset('CNY', this.gateway)
       this.console([buyOrderAmount, this.myCNY, tag, 'buyOrder 1'])
       // 买入量大于拥有量则退出
       this.console([parseFloat(buyOrderAmount) > parseFloat(this.myCNY), 'buyOrder 2'])
@@ -482,7 +478,7 @@ export default {
       // 当持有的XLM多于XLM上限，则停止买入
       if (parseFloat(this.myXLM) >= parseFloat(this.limitXLM / this.sellPrice)) {
         // 下买单的时候还没有卖单
-        this.console.log('buyOrder 5')
+        this.console('buyOrder 5')
         if (tag === true) {
           return this.sellOrder()
         }
@@ -521,6 +517,7 @@ export default {
     sellOrder () {
       let sellOrderPrice = this.fixNum(this.sellPrice * (1 + this.sellRate / 100), 7)
       let sellOrderAmount = this.fixNum(this.orderTotal / sellOrderPrice, 7)
+      let assetCNY = new StellarSdk.Asset('CNY', this.gateway)
 
       this.console([parseFloat(this.myCNY) , parseFloat(this.limitCNY), 'sellOrder 1'])
       if (parseFloat(this.myCNY) >= parseFloat(this.limitCNY)) {
@@ -559,6 +556,7 @@ export default {
     },
     orderCancel (offer, reason = '') {
       // console.log(offer)
+      let assetCNY = new StellarSdk.Asset('CNY', this.gateway)
       this.server.loadAccount(this.myAddress)
         .then((account) => {
           var op = StellarSdk.Operation.manageOffer({
