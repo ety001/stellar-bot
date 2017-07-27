@@ -102,7 +102,7 @@
           </div>
         </el-col>
         <el-col :span="16">
-          <h4>Offsers List</h4>
+          <h4>OrderBook</h4>
           <el-row :gutter="8">
             <el-col :span="12">
               <el-table
@@ -145,7 +145,7 @@
               </el-table>
             </el-col>
           </el-row>
-          <h4>Orders</h4>
+          <h4>My Orders</h4>
           <el-row :gutter="8">
             <el-col :span="12">
               <el-table
