@@ -51,15 +51,15 @@
           </div>
           <div class="info">
             <span>地址：</span>
-            <el-input v-model="myAddress" placeholder="地址"></el-input>
+            <el-input v-model.trim="myAddress" placeholder="地址"></el-input>
           </div>
           <div class="info">
             <span>私钥：</span>
-            <el-input type="password" v-model="primaryKey" placeholder="私钥"></el-input>
+            <el-input type="password" v-model.trim="primaryKey" placeholder="私钥"></el-input>
           </div>
           <div class="info">
             <span>网关：</span>
-            <el-input v-model="gateway" placeholder="网关"></el-input>
+            <el-input v-model.trim="gateway" placeholder="网关"></el-input>
           </div>
           
           <div class="info">
@@ -68,31 +68,31 @@
                 <el-tooltip class="item" effect="dark" content="买入价 = 当前价 * ( 1 - 买入比/100 )" placement="right">
                   <el-button>买入比(%)：</el-button>
                 </el-tooltip>
-                <el-input v-model="buyRate" placeholder="买入比(%),例如: 2"></el-input>
+                <el-input v-model.trim="buyRate" placeholder="买入比(%),例如: 2"></el-input>
               </el-col>
               <el-col :span="8">
                 <el-tooltip class="item" effect="dark" content="卖出价 = 当前价 * ( 1 + 卖出比/100 )" placement="right">
                   <el-button>卖出比(%)：</el-button>
                 </el-tooltip>
-                <el-input v-model="sellRate" placeholder="卖出比(%),例如: 2"></el-input>
+                <el-input v-model.trim="sellRate" placeholder="卖出比(%),例如: 2"></el-input>
               </el-col>
               <el-col :span="8">
                 <el-tooltip class="item" effect="dark" content="单个订单的价值，无论买入卖出都按照CNY结算。例如买单时，订单价值 = 买入价 * 买入量" placement="right">
                   <el-button>订单价值(CNY)：</el-button>
                 </el-tooltip>
-                <el-input v-model="orderTotal" placeholder="订单价值(CNY),例如: 10"></el-input>
+                <el-input v-model.trim="orderTotal" placeholder="订单价值(CNY),例如: 10"></el-input>
               </el-col>
               <el-col :span="8">
                 <el-tooltip class="item" effect="dark" content="达到该上限值，则停止卖出XLM" placement="right">
                   <el-button>CNY上限：</el-button>
                 </el-tooltip>
-                <el-input v-model="limitCNY" placeholder="CNY上限"></el-input>
+                <el-input v-model.trim="limitCNY" placeholder="CNY上限"></el-input>
               </el-col>
               <el-col :span="8">
                 <el-tooltip class="item" effect="dark" content="达到该上限值，则停止买入XLM，按照CNY计算" placement="right">
                   <el-button>XLM上限(CNY)：</el-button>
                 </el-tooltip>
-                <el-input v-model="limitXLM" placeholder="XLM上限"></el-input>
+                <el-input v-model.trim="limitXLM" placeholder="XLM上限"></el-input>
               </el-col>
               <el-col :span="8">
                 <br><br>
@@ -181,7 +181,7 @@
 </template>
 
 <script>
-const version = 'v0.0.3.4'
+const version = 'v0.0.4'
 const intervalTime = 10
 const bookLimit = 30
 let assetNative = new StellarSdk.Asset.native()
@@ -200,10 +200,10 @@ export default {
       myXLM: 0,
       myCNY: 0,
       currentAccount: null,
-      myAddress: null,
-      primaryKey: null,
+      myAddress: '',
+      primaryKey: '',
       sourceKeypair: null,
-      gateway: null,
+      gateway: '',
       buyRate: null,
       sellRate: null,
       orderTotal: null, // 订单量
@@ -226,6 +226,11 @@ export default {
     },
     totalCNY () {
       return this.fixNum(parseFloat(this.myCNY) + parseFloat(this.myXLM) * parseFloat(this.buyPrice), 5)
+    }
+  },
+  watch : {
+    gateway: (val) => {
+      assetCNY = new StellarSdk.Asset('CNY', val)
     }
   },
   methods: {
@@ -255,11 +260,11 @@ export default {
             message: msg,
             type: msgType
           })
-          console.log(msg)
+          this.console([msg, 'msgOpen, warning'])
           break
         default:
           this.$message(msg)
-          console.log(msg)
+          this.console([msg, 'msgOpen, default'])
           break
       }
     },
@@ -274,7 +279,7 @@ export default {
       )
       .call()
       .then((resp) => {
-        // console.log(resp)
+        this.console([resp, 'orderbook, resp'])
         this.asks = []
         this.bids = []
         resp.asks.forEach((val, index) => {
@@ -290,10 +295,9 @@ export default {
           val.amount = this.fixNum(val.amount / val.price, 7)
           this.bids.push(val)
         })
-        //console.log(resp)
       })
       .catch((err) => {
-        console.error(err)
+        console.error(err, 'orderbook')
       })
     },
     myOffers (callback=null) {
@@ -303,9 +307,9 @@ export default {
       .call()
       .then((offerResult) => {
         this.orders = []
-        // console.log(offerResult)
+        this.console([offerResult, 'myOffers, offerResult'])
         let offerResultLength = offerResult.records.length
-        // console.log(offerResultLength)
+        this.console([offerResultLength, 'myOffers, offerResultLength'])
         if (offerResultLength > 0) {
           return Promise.all(offerResult.records.map((row) => {
             if (row.buying.asset_type !== 'native') {
@@ -333,21 +337,20 @@ export default {
           }))
         } else {
           if (this.robotStatus === true) {
-            // console.log(123)
+            this.console('robotStatus is true')
             this.buyOrder(true) // 同时下买卖单
           }
           return [false] // 不执行 robot()
         }
-        //console.log(offerResult)
       })
       .then((res) => {
-        // console.log(res)
+        this.console([res, 'myOffers, callback'])
         if (res[0] === true) {
           callback()
         }
       })
       .catch((err) => {
-        console.error(err)
+        console.error(err, 'myOffers')
       })
     },
     updateBalance () {
@@ -366,16 +369,27 @@ export default {
           })
         })
         .catch((err) => {
-          console.error(err)
+          console.error(err, 'update balance')
         })
     },
     intervalFunc () {
       console.log('run')
-      this.updateBalance()
-      this.orderbook()
-      this.myOffers(() => {this.robot()})
+      if (this.myAddress != '') {
+        this.updateBalance()
+        if (this.gateway != '') {
+          this.orderbook()
+          this.myOffers(() => {this.robot()})
+        } else {
+          this.console('请输入网关地址', 'msg')
+        }
+      } else {
+        this.console('请输入钱包地址', 'msg')
+      }
     },
     robot () {
+      if (this.primaryKey == '') {
+        return this.console('请输入密钥', 'msg')
+      }
       // console.log(this.robotStatus)
       if (this.robotStatus === true) {
         // 计算买入卖出价格
@@ -387,7 +401,7 @@ export default {
         let maxSellOrderSeq = 0
         let tmpBuyOrders = []
         let tmpSellOrders = []
-        console.log(this.buyOrderNum, this.sellOrderNum, this.buyOrderNum === 0 && this.sellOrderNum === 0)
+        this.console([this.buyOrderNum, this.sellOrderNum, this.buyOrderNum === 0 && this.sellOrderNum === 0, 'robot 1'])
         if (this.buyOrderNum === 0 && this.sellOrderNum === 0) {
           this.buyOrder(true)
         } else {
@@ -421,7 +435,7 @@ export default {
             // 如果已经是最后一次循环
             if (index === offersLength - 1) {
               if (tmpBuyOrders.length !== 1 || tmpSellOrders.length !== 1) {
-                // console.log('Get in last foreach:', tmpBuyOrders, tmpSellOrders, maxBuyOrderSeq, maxSellOrderSeq)
+                this.console(['Get in last foreach:', tmpBuyOrders, tmpSellOrders, maxBuyOrderSeq, maxSellOrderSeq])
               }
               if (tmpBuyOrders.length > 1) {
                 // 处理多于一个的订单
@@ -453,29 +467,28 @@ export default {
     buyOrder (tag=false) {
       let buyOrderPrice = this.fixNum(1 / (this.buyPrice * (1 - this.buyRate / 100)), 7)
       let buyOrderAmount = this.fixNum(this.orderTotal, 7)
-      // console.log(buyOrderAmount, this.myCNY, tag, 'kkk')
+      this.console([buyOrderAmount, this.myCNY, tag, 'buyOrder 1'])
       // 买入量大于拥有量则退出
-      // console.log(parseFloat(buyOrderAmount) > parseFloat(this.myCNY))
+      this.console([parseFloat(buyOrderAmount) > parseFloat(this.myCNY), 'buyOrder 2'])
       if (parseFloat(buyOrderAmount) > parseFloat(this.myCNY)) {
         // 下买单的时候还没有卖单
-        // console.log(tag)
+        this.console([tag, 'buyOrder 3'])
         if (tag === true) {
-          // console.log('tag')
           return this.sellOrder()
         }
         return
       }
-      // console.log(parseFloat(this.myXLM), parseFloat(this.limitXLM / this.sellPrice))
+      this.console([parseFloat(this.myXLM), parseFloat(this.limitXLM / this.sellPrice), 'buyOrder 4'])
       // 当持有的XLM多于XLM上限，则停止买入
       if (parseFloat(this.myXLM) >= parseFloat(this.limitXLM / this.sellPrice)) {
         // 下买单的时候还没有卖单
+        this.console.log('buyOrder 5')
         if (tag === true) {
-          // console.log('tag')
           return this.sellOrder()
         }
         return
       }
-      // console.log(333222)
+      this.console('buyOrder 6')
       this.server.loadAccount(this.myAddress)
         .then((account) => {
           var op = StellarSdk.Operation.manageOffer({
@@ -485,7 +498,7 @@ export default {
             price : buyOrderPrice // The exchange rate ratio (selling / buying)
           })
           let tx = new StellarSdk.TransactionBuilder(account).addOperation(op).build();
-          console.log(op, tx)
+          this.console([op, tx, 'buyOrder 7'])
           tx.sign(StellarSdk.Keypair.fromSecret(this.primaryKey))
           return this.server.submitTransaction(tx)
         }).then((txResult) => {
@@ -500,25 +513,25 @@ export default {
             selling: assetCNY,
             buying: assetNative
           })
-          console.log(`Buy Order, buy: ${buyOrderAmount} XLM, price: ${buyOrderPrice}`, txResult)
+          this.console([`Buy Order, buy: ${buyOrderAmount} XLM, price: ${buyOrderPrice}`, txResult], 'msg')
         }).catch((err) => {
-          console.error('Offer Fail !', err)
+          console.error('Offer Fail !', err, 'buyOrder')
         })
     },
     sellOrder () {
       let sellOrderPrice = this.fixNum(this.sellPrice * (1 + this.sellRate / 100), 7)
       let sellOrderAmount = this.fixNum(this.orderTotal / sellOrderPrice, 7)
 
-      // console.log(parseFloat(this.myCNY) , parseFloat(this.limitCNY))
+      this.console([parseFloat(this.myCNY) , parseFloat(this.limitCNY), 'sellOrder 1'])
       if (parseFloat(this.myCNY) >= parseFloat(this.limitCNY)) {
         // 当前持有cny多于cny上限停止下卖单
         return
       }
-      // console.log(sellOrderAmount, this.myXLM)
+      this.console([sellOrderAmount, this.myXLM, 'sellOrder 2'])
       if (parseFloat(sellOrderAmount) > parseFloat(this.myXLM)) {
         return
       }
-      // console.log(111)
+      this.console('sellOrder 3')
       this.server.loadAccount(this.myAddress)
         .then((account) => {
           var op = StellarSdk.Operation.manageOffer({
@@ -539,9 +552,9 @@ export default {
             selling: assetNative,
             buying: assetCNY
           })
-          console.log(`Sell Order, sell: ${sellOrderAmount} XLM, price: ${sellOrderPrice}`, txResult)
+          this.console([`Sell Order, sell: ${sellOrderAmount} XLM, price: ${sellOrderPrice}`, txResult], 'msg')
         }).catch(function(err){
-          console.error('Offer Fail !', err)
+          console.error('Offer Fail !', err, 'sellOrder 4')
         })
     },
     orderCancel (offer, reason = '') {
@@ -559,14 +572,19 @@ export default {
           tx.sign(StellarSdk.Keypair.fromSecret(this.primaryKey))
           return this.server.submitTransaction(tx)
         }).then((txResult) => {
-          console.log(`Cancel Order, ${reason}, order_id: ${offer.seq}`, txResult)
+          this.console([`Cancel Order, ${reason}, order_id: ${offer.seq}`, txResult], 'msg')
         }).catch((err) => {
-          console.error('Offer Fail !', err)
+          console.error('Offer Fail !', err, 'orderCancel 1')
         })
     },
     tableRowClassName (row, index) {
       if (row.account === this.myAddress) {
         return 'info-buy'
+      }
+    },
+    console (txt, dataType='debug') {
+      if (dataType === 'msg' || (debugStellarBot === true && dataType === 'debug')) {
+        console.log(txt)
       }
     }
   },
@@ -584,11 +602,8 @@ export default {
       this.limitCNY = localMem.limitCNY
       this.limitXLM = localMem.limitXLM
     }
-    assetCNY = new StellarSdk.Asset('CNY', this.gateway)
     this.server = new StellarSdk.Server(this.serverUrl)
     StellarSdk.Network.usePublicNetwork()
-    this.sourceKeypair = StellarSdk.Keypair.fromSecret(this.primaryKey)
-    // this.currentAccount = new StellarSdk.Account(this.myAddress)
     this.intervalFunc()
     this.interval = setInterval(() => {
       this.intervalFunc()
