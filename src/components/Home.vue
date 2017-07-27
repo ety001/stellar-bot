@@ -174,6 +174,9 @@
         </el-col>
       </el-row>
     </el-col>
+    <el-col id="donor" :span="20" :offset="2">
+      捐助作者XLM： <b>{{ donor }}</b>
+    </el-col>
   </el-row>
 </template>
 
@@ -213,7 +216,8 @@ export default {
       ledgerSequence: 0,
       orders: [],
       buyOrderNum: 0,
-      sellOrderNum: 0
+      sellOrderNum: 0,
+      donor: 'GCRF5BWQLVAEDIE4J25KJ5XKC3JI5XKPCT2BA7PZD7B2SW3LSPVX5ENC'
     }
   },
   computed: {
@@ -611,5 +615,11 @@ export default {
   }
   .el-table .info-sell {
     background-color: #f2dede;
+  }
+  #donor {
+    background-color: #eef1f6;
+    text-align: center;
+    padding: 10px 0;
+    margin-top: 10px;
   }
 </style>
