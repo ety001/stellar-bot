@@ -1,10 +1,10 @@
 <template>
-  <h1>{{ 'hello' | translate }}</h1>
+      <h1>{{ 'hello' | translate }}</h1>
 </template>
 
 <script>
 export default {
-  name: 'hello',
+  name: 'home',
   data() {
     return {
     };

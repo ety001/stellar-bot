@@ -1,0 +1,8 @@
+{
+  "hello": "hello world",
+  "siteTitle": "StellarBot",
+  "topnav": {
+    "Index": "Index",
+    "Settings": "Settings"
+  }
+}
