@@ -6,8 +6,13 @@
 </template>
 
 <script>
+import StellarSdk from 'stellar-sdk';
+
 export default {
   name: 'app',
+  mounted() {
+    console.log(StellarSdk);
+  },
 };
 </script>
 
