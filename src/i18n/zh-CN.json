@@ -1,8 +1,29 @@
 {
   "hello": "你好，世界",
-  "siteTitle": "StellarBot",
-  "topnav": {
-    "Index": "首页",
-    "Settings": "配置"
-  }
+  "site_title": "StellarBot",
+  "robot_status": "机器人状态: {robotStatus}",
+  "on": "开",
+  "off": "关",
+  "settings": "{what_to}设置",
+  "done": "完成",
+  "cancel": "取消",
+  "add": "添加{what}",
+  "info": "{which}信息",
+  "address": "{which}地址",
+  "robot": "机器人",
+  "wallet": {
+    "base": "钱包",
+    "config_your_private_key": "设置你的钱包私钥",
+    "type_your_private_key": "输入你的钱包私钥...",
+    "balance": "账号余额",
+    "asset": "资产",
+    "issuer": "发行网关",
+    "total": "余额",
+    "value": "价值",
+    "trustline": "信任线"
+  },
+  "exchange_pair": "交易对",
+  "base": "基础",
+  "counter": "对手",
+  "max": "最大量"
 }

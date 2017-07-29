@@ -11,12 +11,29 @@ import router from './router';
 import transEn from './i18n/en.json';
 import transZhCn from './i18n/zh-CN.json';
 
-Vue.config.productionTip = false;
 const version = 'v0.0.5';
+window.debugStellarBot = !(process.env.NODE_ENV === 'production');
+window.Sconsole = (resultArrOrStr, msgType = 'debug') => {
+  if (msgType === 'msg'
+    || (msgType === 'debug' && window.debugStellarBot === true)) {
+    console.log(resultArrOrStr);
+  }
+};
+Vue.config.productionTip = false;
 
 // init Vuex
 Vue.use(Vuex);
-const store = new Vuex.Store();
+const store = new Vuex.Store({
+  state: {
+    walletAddress: null,
+  },
+  mutations: {
+    setWalletAddress(str) {
+      window.Sconsole(`set wallet address ${str}`);
+      this.state.walletAddress = str;
+    },
+  },
+});
 
 // init VueMaterial
 Vue.use(VueMaterial);
@@ -28,10 +45,10 @@ Vue.i18n.add('en', transEn);
 Vue.i18n.add('zh-CN', transZhCn);
 
 // set the start locale to use
-Vue.i18n.set('zh-CN');
+Vue.i18n.set('en');
 
 /* eslint-disable no-new */
-const app = new Vue({
+new Vue({
   el: '#app',
   data: {
     debugStellarBot: false,
@@ -40,16 +57,9 @@ const app = new Vue({
   template: '<App/>',
   components: { App },
   methods: {
-    console(resultArrOrStr, msgType = 'debug') {
-      if (msgType === 'msg'
-        || (msgType === 'debug' && this.debugStellarBot === true)) {
-        console.log(resultArrOrStr);
-      }
-    },
   },
   mounted() {
     console.log(StellarSdk);
+    window.Sconsole(`version: ${version}`, 'msg');
   },
 });
-
-app.console(`version: ${version}`, 'msg');

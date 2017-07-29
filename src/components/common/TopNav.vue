@@ -1,17 +1,10 @@
 <template>
   <md-toolbar>
-    <h2 class="md-title site-title" style="flex: 1">
-      <router-link to="home">{{ 'siteTitle' | translate }}</router-link>
-    </h2>
-    <md-menu >
-      <md-button class="md-icon-button" md-menu-trigger>
-        <md-icon>settings</md-icon>
-      </md-button>
-      <md-menu-content>
-        <md-menu-item>My Item 1</md-menu-item>
-        <md-menu-item>My Item 2</md-menu-item>
-      </md-menu-content>
-    </md-menu>
+    <md-button class="md-icon-button" v-on:click="gohome">
+      <md-icon>home</md-icon>
+    </md-button>
+    <h2 class="md-title site-title" style="flex: 1">{{ 'site_title' | translate }}</h2>
+    <md-switch v-model="robotStatus" id="robot_status" name="robot_status" class="md-warn">{{ $t('robot_status', {'robotStatus': $t(robotStatusTxt)}) }}</md-switch>
   </md-toolbar>
 </template>
 
@@ -19,10 +12,19 @@
 export default {
   data() {
     return {
-      activeIndex: this.$route.name,
+      robotStatus: false,
+      robotStatusTxt: 'off',
     };
   },
+  watch: {
+    robotStatus() {
+      this.robotStatusTxt = this.robotStatus ? 'on' : 'off';
+    },
+  },
   methods: {
+    gohome() {
+      this.$router.push({ name: 'home' });
+    },
   },
 };
 </script>

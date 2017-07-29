@@ -1,8 +1,29 @@
 {
   "hello": "hello world",
-  "siteTitle": "StellarBot",
-  "topnav": {
-    "Index": "Index",
-    "Settings": "Settings"
-  }
+  "site_title": "StellarBot",
+  "robot_status": "Robot Status: {robotStatus}",
+  "on": "On",
+  "off": "Off",
+  "settings": "{what_to} Settings",
+  "done": "Done",
+  "cancel": "Cancel",
+  "add": "Add {what}",
+  "info": "{which} Information",
+  "address": "{which} Address",
+  "robot": "Robot",
+  "wallet": {
+    "base": "Wallet",
+    "config_your_private_key": "Config Your Wallet Private Key",
+    "type_your_private_key": "Type your private key...",
+    "balance": "Balance",
+    "asset": "Asset",
+    "issuer": "Issuer",
+    "total": "Total",
+    "value": "Value",
+    "trustline": "Trustline"
+  },
+  "exchange_pair": "Exchange Pair",
+  "base": "Base",
+  "counter": "Counter",
+  "max": "Max"
 }
