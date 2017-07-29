@@ -25,5 +25,6 @@
   "exchange_pair": "Exchange Pair",
   "base": "Base",
   "counter": "Counter",
-  "max": "Max"
+  "max": "Max",
+  "language": "LANG"
 }

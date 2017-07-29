@@ -5,6 +5,12 @@
     </md-button>
     <h2 class="md-title site-title" style="flex: 1">{{ 'site_title' | translate }}</h2>
     <md-switch v-model="robotStatus" id="robot_status" name="robot_status" class="md-warn">{{ $t('robot_status', {'robotStatus': $t(robotStatusTxt)}) }}</md-switch>
+    <md-input-container style="width: 100px; margin-left: 20px; text-align: center;">
+      <md-select name="lang" id="lang" v-model="lang">
+        <md-option value="zh-CN">中文</md-option>
+        <md-option value="en">English</md-option>
+      </md-select>
+    </md-input-container>
   </md-toolbar>
 </template>
 
@@ -12,6 +18,7 @@
 export default {
   data() {
     return {
+      lang: 'en',
       robotStatus: false,
       robotStatusTxt: 'off',
     };
@@ -19,6 +26,9 @@ export default {
   watch: {
     robotStatus() {
       this.robotStatusTxt = this.robotStatus ? 'on' : 'off';
+    },
+    lang(val) {
+      this.$i18n.set(val);
     },
   },
   methods: {

@@ -25,5 +25,6 @@
   "exchange_pair": "交易对",
   "base": "基础",
   "counter": "对手",
-  "max": "最大量"
+  "max": "最大量",
+  "language": "LANG"
 }
