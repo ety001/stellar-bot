@@ -11,7 +11,7 @@ import router from './router';
 import transEn from './i18n/en.json';
 import transZhCn from './i18n/zh-CN.json';
 
-const version = 'v0.0.5';
+const VERSION = '0.0.5';
 window.debugStellarBot = !(process.env.NODE_ENV === 'production');
 window.Sconsole = (resultArrOrStr, msgType = 'debug') => {
   if (msgType === 'msg'
@@ -37,6 +37,11 @@ const store = new Vuex.Store({
 
 // init VueMaterial
 Vue.use(VueMaterial);
+Vue.material.registerTheme('default', {
+  primary: 'teal',
+  accent: 'red',
+  warn: 'orange',
+});
 
 // to config I18n
 Vue.use(vuexI18n.plugin, store);
@@ -52,14 +57,15 @@ new Vue({
   el: '#app',
   data: {
     debugStellarBot: false,
+    version: VERSION,
   },
   router,
-  template: '<App/>',
+  template: '<App :version="version"/>',
   components: { App },
   methods: {
   },
   mounted() {
     console.log(StellarSdk);
-    window.Sconsole(`version: ${version}`, 'msg');
+    window.Sconsole(`version: ${VERSION}`, 'msg');
   },
 });

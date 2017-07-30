@@ -11,6 +11,8 @@
   "info": "{which} Information",
   "address": "{which} Address",
   "robot": "Robot",
+  "language": "LANG",
+  "example": "Example",
   "wallet": {
     "base": "Wallet",
     "config_your_private_key": "Config Your Wallet Private Key",
@@ -20,11 +22,22 @@
     "issuer": "Issuer",
     "total": "Total",
     "value": "Value",
-    "trustline": "Trustline"
+    "trustline": "Trustline",
+    "asset_code": "Asset Code(Example: CNY)",
+    "asset_issuer": "Asset Issuer(Example: GAREELUB43IRHWEASCFBLKHURCGMHE5IF6XSE7EXDLACYHGRHM43RFOX)"
   },
-  "exchange_pair": "Exchange Pair",
-  "base": "Base",
-  "counter": "Counter",
-  "max": "Max",
-  "language": "LANG"
+  "exchange": {
+    "exchange_pair": "Exchange Pair",
+    "base": "Base",
+    "counter": "Counter",
+    "max": "Max",
+    "calculated_in_ripplefox_cny_price": "The Maximum Amount Of Current Asset You Can Hold. (Calculated in RippleFox CNY Price)",
+    "buy_rate": "Buy Rate(%)",
+    "sell_rate": "Sell Rate(%)",
+    "amount": "Amount",
+    "base_asset": "Base Asset (Example: XLM)",
+    "base_issuer": "Base Issuer (Example: If asset is XLM, please empty this input)",
+    "counter_asset": "Counter Asset (Example: CNY)",
+    "counter_issuer": "Counter Issuer (Example: GAREELUB43IRHWEASCFBLKHURCGMHE5IF6XSE7EXDLACYHGRHM43RFOX)"
+  }
 }

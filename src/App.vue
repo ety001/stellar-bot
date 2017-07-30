@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <top-nav></top-nav>
+    <top-nav :version="version"></top-nav>
     <router-view></router-view>
   </div>
 </template>
@@ -10,6 +10,9 @@ import TopNav from '@/components/common/TopNav';
 
 export default {
   name: 'app',
+  props: {
+    version: String,
+  },
   components: {
     'top-nav': TopNav,
   },
