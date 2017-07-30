@@ -8,6 +8,7 @@
   "done": "Done",
   "cancel": "Cancel",
   "add": "Add {what}",
+  "edit": "Edit {what}",
   "info": "{which} Information",
   "address": "{which} Address",
   "robot": "Robot",
@@ -29,8 +30,9 @@
   "exchange": {
     "exchange_pair": "Exchange Pair",
     "base": "Base",
-    "counter": "Counter",
     "max": "Max",
+    "params": "Parameters",
+    "counter": "Counter",
     "calculated_in_ripplefox_cny_price": "The Maximum Amount Of Current Asset You Can Hold. (Calculated in RippleFox CNY Price)",
     "buy_rate": "Buy Rate(%)",
     "sell_rate": "Sell Rate(%)",

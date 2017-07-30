@@ -22,9 +22,19 @@
             <span>{{ $t('add', {what: $t('wallet.trustline')} ) }}</span>
             <md-icon>add</md-icon>
           </md-menu-item>
+          <md-menu-item @click="editMax()">
+            <span>{{ $t('edit', {what: $t('exchange.max')} ) }}</span>
+            <md-icon>edit</md-icon>
+          </md-menu-item>
         </md-menu-content>
       </md-menu>
     </md-card-header>
+
+    <md-card-content v-if="isMaxEditable">
+      <md-button @click="saveChange" class="md-raised md-primary">
+        <md-icon>save</md-icon>
+      </md-button>
+    </md-card-content>
 
     <md-card-content>
       <md-table md-sort="value" md-sort-type="desc">
@@ -34,7 +44,7 @@
             <md-table-head md-sort-by="total">{{ 'wallet.balance' | translate }}</md-table-head>
             <md-table-head md-sort-by="value">{{ 'wallet.value' | translate }} (XLM)</md-table-head>
             <md-table-head>
-              {{ $t('exchange.max') }}
+              {{ $t('exchange.max') }} (CNY)
               <md-tooltip md-direction="right">{{ $t('exchange.calculated_in_ripplefox_cny_price')}}</md-tooltip></md-table-head>
             <md-table-head></md-table-head>
           </md-table-row>
@@ -52,13 +62,10 @@
             <md-table-cell>
               <md-input-container>
                 <label></label>
-                <md-input disabled value="123"></md-input>
+                <md-input class="asset_max" :disabled="!isMaxEditable"></md-input>
               </md-input-container>
             </md-table-cell>
             <md-table-cell>
-              <md-button class="md-icon-button md-raised md-primary">
-                <md-icon>edit</md-icon>
-              </md-button>
               <md-button class="md-icon-button md-raised md-warn">
                 <md-icon>delete</md-icon>
               </md-button>
@@ -114,6 +121,7 @@ export default {
     trustIssuer: null,
     assetCode: null,
     assetIssuer: null,
+    isMaxEditable: false,
   }),
   watch: {
   },
@@ -146,6 +154,12 @@ export default {
           break;
       }
       window.Sconsole(['Dialog Closed', ref, type]);
+    },
+    editMax() {
+      this.isMaxEditable = true;
+    },
+    saveChange() {
+      this.isMaxEditable = false;
     },
   },
 };

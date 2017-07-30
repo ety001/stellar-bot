@@ -15,18 +15,26 @@
             <span>{{ $t('add', {what: $t('exchange.exchange_pair')} ) }}</span>
             <md-icon>add</md-icon>
           </md-menu-item>
+          <md-menu-item @click="editParams()">
+            <span>{{ $t('edit', {what: $t('exchange.params')} ) }}</span>
+            <md-icon>edit</md-icon>
+          </md-menu-item>
         </md-menu-content>
       </md-menu>
     </md-card-header>
-
+    <md-card-content v-if="isRateEditable">
+      <md-button @click="saveChange" class="md-raised md-primary">
+        <md-icon>save</md-icon>
+      </md-button>
+    </md-card-content>
     <md-card-content>
       <md-table>
         <md-table-header>
           <md-table-row>
-            <md-table-head>{{ $t('exchange.base') + ' ' + $t('wallet.asset') }}</md-table-head>
+            <md-table-head>{{ $t('exchange.base') + '' + $t('wallet.asset') }}</md-table-head>
             <md-table-head>{{ $t('exchange.buy_rate') }}</md-table-head>
             <md-table-head>{{ $t('exchange.amount') }}</md-table-head>
-            <md-table-head>{{ $t('exchange.counter') + ' ' + $t('wallet.asset') }}</md-table-head>
+            <md-table-head>{{ $t('exchange.counter') + '' + $t('wallet.asset') }}</md-table-head>
             <md-table-head>{{ $t('exchange.sell_rate') }}</md-table-head>
             <md-table-head>{{ $t('exchange.amount') }}</md-table-head>
             <md-table-head></md-table-head>
@@ -43,13 +51,13 @@
             <md-table-cell>
               <md-input-container>
                 <label></label>
-                <md-input disabled value="123"></md-input>
+                <md-input :disabled="!isRateEditable"></md-input>
               </md-input-container>
             </md-table-cell>
             <md-table-cell>
               <md-input-container>
                 <label></label>
-                <md-input disabled value="123"></md-input>
+                <md-input :disabled="!isRateEditable"></md-input>
               </md-input-container>
             </md-table-cell>
             <md-table-cell>
@@ -61,19 +69,16 @@
             <md-table-cell>
               <md-input-container>
                 <label></label>
-                <md-input disabled value="123"></md-input>
+                <md-input :disabled="!isRateEditable"></md-input>
               </md-input-container>
             </md-table-cell>
             <md-table-cell>
               <md-input-container>
                 <label></label>
-                <md-input disabled value="123"></md-input>
+                <md-input :disabled="!isRateEditable"></md-input>
               </md-input-container>
             </md-table-cell>
             <md-table-cell>
-              <md-button class="md-icon-button md-raised md-primary">
-                <md-icon>edit</md-icon>
-              </md-button>
               <md-button class="md-icon-button md-raised md-warn">
                 <md-icon>delete</md-icon>
               </md-button>
@@ -122,6 +127,7 @@ export default {
       baseIssuer: null,
       counterAsset: null,
       counterIssuer: null,
+      isRateEditable: false,
     };
   },
   components: {
@@ -158,6 +164,12 @@ export default {
       this.baseIssuer = null;
       this.counterAsset = null;
       this.counterIssuer = null;
+    },
+    editParams() {
+      this.isRateEditable = true;
+    },
+    saveChange() {
+      this.isRateEditable = false;
     },
   },
 };
