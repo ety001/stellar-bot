@@ -25,7 +25,8 @@
     "value": "价值",
     "trustline": "信任线",
     "asset_code": "货币符号(例如: CNY)",
-    "asset_issuer": "发行网关(例如: GAREELUB43IRHWEASCFBLKHURCGMHE5IF6XSE7EXDLACYHGRHM43RFOX)"
+    "asset_issuer": "发行网关(例如: GAREELUB43IRHWEASCFBLKHURCGMHE5IF6XSE7EXDLACYHGRHM43RFOX)",
+    "private_key_error": "私钥格式错误"
   },
   "exchange": {
     "exchange_pair": "交易对",
@@ -41,5 +42,6 @@
     "base_issuer": "基础发行网关 (例如: 如果货币填写的是XLM，则此处留空)",
     "counter_asset": "对手货币 (例如: CNY)",
     "counter_issuer": "对手发行网关 (Example: GAREELUB43IRHWEASCFBLKHURCGMHE5IF6XSE7EXDLACYHGRHM43RFOX)"
-  }
+  },
+  "save_success": "保存成功"
 }

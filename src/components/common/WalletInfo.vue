@@ -3,9 +3,9 @@
     <md-card-header>
       <md-card-header-text>
         <div class="md-title">{{ $t('info', {which: $t('wallet.base')}) }}</div>
-        <div class="md-subhead">
+        <div class="md-subhead" v-if="walletAddress">
           {{ $t('address', {which: ''}) }}:
-          <span>GCRF5BWQLVAEDIE4J25KJ5XKC3JI5XKPCT2BA7PZD7B2SW3LSPVX5ENC</span>
+          <span>{{ walletAddress }}</span>
         </div>
       </md-card-header-text>
 
@@ -85,7 +85,7 @@
       ref="set_privary_key">
       <md-input-container md-inline>
         <label>{{ $t('wallet.type_your_private_key') }}</label>
-        <md-input type="password" v-model="walletPrivateKeyDisplay"></md-input>
+        <md-input type="password" v-model="walletPrivateKey"></md-input>
       </md-input-container>
     </dialog-form>
 
@@ -106,17 +106,18 @@
         <md-input v-model="assetIssuer"></md-input>
       </md-input-container>
     </dialog-form>
-
   </md-card>
 </template>
 
 <script>
 import DialogForm from '@/components/common/DialogForm';
+import Api from '@/lib/Api';
 
 export default {
   data: () => ({
+    msg: null,
+    walletAddress: null,
     walletPrivateKey: null,
-    walletPrivateKeyDisplay: null,
     trustAssetCode: null,
     trustIssuer: null,
     assetCode: null,
@@ -134,26 +135,47 @@ export default {
     },
     onOpen(ref) {
       switch (ref) {
-        case 'set_privary_key':
-          this.walletPrivateKeyDisplay = null;
+        case 'set_privary_key': {
+          // this.walletPrivateKey = null;
           break;
-        default:
+        }
+        default: {
           break;
+        }
       }
       window.Sconsole(['Dialog Opened', ref]);
     },
     onClose(ref, type) {
       switch (ref) {
-        case 'set_privary_key':
-          this.walletPrivateKey = this.walletPrivateKeyDisplay;
-          // To generate PublicKey
-          // To update state
-          this.walletPrivateKeyDisplay = null;
+        case 'set_privary_key': {
+          if (type === 'ok') {
+            // To generate PublicKey and save to store
+            Api.generateKeypair(
+              this.walletPrivateKey,
+              (res) => {
+                this.$store.commit('updatePublicKey', res.publicKey());
+                this.$store.commit('updatePrivateKey', this.walletPrivateKey);
+                this.$store.commit('updateSnackmsg', 'save_success');
+                // this.$emit('save');
+              },
+              () => {
+                this.$store.commit('updateSnackmsg', 'wallet.private_key_error');
+                this.walletPrivateKey = null;
+              },
+            );
+          } else {
+            this.walletPrivateKey = null;
+          }
           break;
-        default:
+        }
+        default: {
           break;
+        }
       }
       window.Sconsole(['Dialog Closed', ref, type]);
+    },
+    onSnackbarClose() {
+      this.msg = null;
     },
     editMax() {
       this.isMaxEditable = true;

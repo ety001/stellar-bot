@@ -25,7 +25,8 @@
     "value": "Value",
     "trustline": "Trustline",
     "asset_code": "Asset Code(Example: CNY)",
-    "asset_issuer": "Asset Issuer(Example: GAREELUB43IRHWEASCFBLKHURCGMHE5IF6XSE7EXDLACYHGRHM43RFOX)"
+    "asset_issuer": "Asset Issuer(Example: GAREELUB43IRHWEASCFBLKHURCGMHE5IF6XSE7EXDLACYHGRHM43RFOX)",
+    "private_key_error": "PrivateKey format is error."
   },
   "exchange": {
     "exchange_pair": "Exchange Pair",
@@ -41,5 +42,6 @@
     "base_issuer": "Base Issuer (Example: If asset is XLM, please empty this input)",
     "counter_asset": "Counter Asset (Example: CNY)",
     "counter_issuer": "Counter Issuer (Example: GAREELUB43IRHWEASCFBLKHURCGMHE5IF6XSE7EXDLACYHGRHM43RFOX)"
-  }
+  },
+  "save_success": "Save Success!"
 }
