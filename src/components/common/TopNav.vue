@@ -2,7 +2,7 @@
   <div>
     <md-toolbar>
       <md-button class="md-icon-button" v-on:click="toggleLeftSidenav">
-        <md-icon>home</md-icon>
+        <md-icon>menu</md-icon>
       </md-button>
       <h2 class="md-title site-title" style="flex: 1;">{{ 'site_title' | translate }}</h2>
     </md-toolbar>
