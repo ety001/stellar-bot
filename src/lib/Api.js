@@ -46,4 +46,11 @@ export default {
       .then(function(resp) { cb(resp); })
       .catch(function(err) { cbErr(err); });
   },
+  removeTrustline: (server, code, issuer, cb, cbErr) => {
+    const asset = StellarSdk.Asset(code, issuer);
+    server.operations()
+      .call()
+      .then(function(resp) { cb(resp); })
+      .catch(function(err) { cbErr(err); });
+  },
 };

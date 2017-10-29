@@ -111,6 +111,7 @@ new Vue({
     window.Sconsole(`version: ${VERSION}`, 'msg');
     // connect server
     this.server = new StellarSdk.Server(this.serverUrl);
+    window.server = this.server;
     StellarSdk.Network.usePublicNetwork();
     // interval function
     this.intervalFunc();

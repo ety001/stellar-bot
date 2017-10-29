@@ -16,13 +16,15 @@
     </md-table-cell>
     <md-table-cell v-if="isMaxEditable">
       <md-button class="md-icon-button md-raised md-warn">
-        <md-icon @click="removeTrustline" :data-code="detail.asset_code" :data-issuer="detail.asset_issuer">delete</md-icon>
+        <md-icon @click="removeTrustline">delete</md-icon>
       </md-button>
     </md-table-cell>
   </md-table-row>
 </template>
 
 <script>
+import Api from '@/lib/Api';
+
 export default {
   data() {
     return {
@@ -52,6 +54,16 @@ export default {
   methods: {
     removeTrustline(e) {
       console.log(e);
+      Api.removeTrustline(
+        window.server,
+        this.detail.asset_code,
+        this.detail.asset_issuer,
+        (res) => {
+          console.log('ok:', res);
+        },
+        (errRes) => {
+          console.log(errRes);
+        });
     },
   },
   filters: {
@@ -78,9 +90,12 @@ export default {
       return false;
     });
     if (tmp.length > 0) {
-      this.maxVal = this.maxes[existIndex];
+      this.maxVal.skey = this.maxes[existIndex].skey;
+      this.maxVal.max = this.maxes[existIndex].max;
+    } else {
+      this.maxVal.skey = skey;
+      this.maxVal.max = 0;
     }
-    this.maxVal = { skey, max: 0 };
   },
 };
 </script>
