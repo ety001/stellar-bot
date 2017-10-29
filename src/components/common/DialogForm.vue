@@ -31,10 +31,12 @@
         default: null,
       },
     },
-    data: () => ({
-      debounce: false,
-      currentComponentRef: null,
-    }),
+    data() {
+      return {
+        debounce: false,
+        currentComponentRef: null,
+      };
+    },
     methods: {
       fireCloseEvent(type) {
         if (!this.debounce) {

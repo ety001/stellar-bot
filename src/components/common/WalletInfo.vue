@@ -37,27 +37,47 @@
     </md-card-content>
 
     <md-card-content>
-      <md-table md-sort="value" md-sort-type="desc">
+      <md-table md-sort-type="desc">
         <md-table-header>
           <md-table-row>
             <md-table-head>{{ 'wallet.asset' | translate }}</md-table-head>
-            <md-table-head md-sort-by="total">{{ 'wallet.balance' | translate }}</md-table-head>
-            <md-table-head md-sort-by="value">{{ 'wallet.value' | translate }} (XLM)</md-table-head>
+            <md-table-head>{{ 'wallet.balance' | translate }}</md-table-head>
+            <md-table-head>{{ 'wallet.value' | translate }} (XLM)</md-table-head>
             <md-table-head>
               {{ $t('exchange.max') }} (CNY)
               <md-tooltip md-direction="right">{{ $t('exchange.calculated_in_ripplefox_cny_price')}}</md-tooltip></md-table-head>
-            <md-table-head></md-table-head>
+            <md-table-head v-if="isMaxEditable"></md-table-head>
           </md-table-row>
         </md-table-header>
+
         <md-table-body>
-          <md-table-row v-for="(row, index) in 5" :key="index">
+
+          <md-table-row>
             <md-table-cell>
               <span>
-                CNY
-                <md-tooltip md-direction="right">GCRF5BWQLVAEDIE4J25KJ5XKC3JI5XKPCT2BA7PZD7B2SW3LSPVX5ENC</md-tooltip>
+                XLM
               </span>
             </md-table-cell>
-            <md-table-cell>2073.123</md-table-cell>
+            <md-table-cell>{{ nativeBalance }}</md-table-cell>
+            <md-table-cell>{{ nativeBalance }}</md-table-cell>
+            <md-table-cell>
+              <md-input-container>
+                <label></label>
+                <md-input class="asset_max" :disabled="!isMaxEditable"></md-input>
+              </md-input-container>
+            </md-table-cell>
+            <md-table-cell v-if="isMaxEditable">
+            </md-table-cell>
+          </md-table-row>
+
+          <md-table-row v-for="(detail, index) in balances" :key="index">
+            <md-table-cell>
+              <span>
+                {{ detail.asset_type === 'native' ? 'XLM' : detail.asset_code }}
+                <md-tooltip v-if="detail.asset_type !== 'native'" md-direction="right">{{ detail.asset_issuer }}</md-tooltip>
+              </span>
+            </md-table-cell>
+            <md-table-cell>{{ detail.balance }}</md-table-cell>
             <md-table-cell>2112.122</md-table-cell>
             <md-table-cell>
               <md-input-container>
@@ -65,7 +85,7 @@
                 <md-input class="asset_max" :disabled="!isMaxEditable"></md-input>
               </md-input-container>
             </md-table-cell>
-            <md-table-cell>
+            <md-table-cell v-if="isMaxEditable">
               <md-button class="md-icon-button md-raised md-warn">
                 <md-icon>delete</md-icon>
               </md-button>
@@ -96,7 +116,7 @@
       :md-dialog-width="'50%'"
       @open="onOpen"
       @close="onClose"
-      ref="add_trust">
+      ref="add_trustline">
       <md-input-container md-inline>
         <label>{{ $t('wallet.asset_code') }}</label>
         <md-input v-model="assetCode"></md-input>
@@ -114,16 +134,26 @@ import DialogForm from '@/components/common/DialogForm';
 import Api from '@/lib/Api';
 
 export default {
-  data: () => ({
-    msg: null,
-    walletAddress: null,
-    walletPrivateKey: null,
-    trustAssetCode: null,
-    trustIssuer: null,
-    assetCode: null,
-    assetIssuer: null,
-    isMaxEditable: false,
-  }),
+  data() {
+    return {
+      msg: null,
+      walletAddress: this.$store.getters.publicKey,
+      walletPrivateKey: null,
+      trustAssetCode: null,
+      trustIssuer: null,
+      assetCode: null,
+      assetIssuer: null,
+      isMaxEditable: false,
+    };
+  },
+  computed: {
+    balances() {
+      return this.$store.getters.balances;
+    },
+    nativeBalance() {
+      return this.$store.getters.nativeBalance;
+    },
+  },
   watch: {
   },
   components: {
@@ -156,7 +186,6 @@ export default {
                 this.$store.commit('updatePublicKey', res.publicKey());
                 this.$store.commit('updatePrivateKey', this.walletPrivateKey);
                 this.$store.commit('updateSnackmsg', 'save_success');
-                // this.$emit('save');
               },
               () => {
                 this.$store.commit('updateSnackmsg', 'wallet.private_key_error');
@@ -165,6 +194,15 @@ export default {
             );
           } else {
             this.walletPrivateKey = null;
+          }
+          break;
+        }
+        case 'add_trustline': {
+          if (type === 'ok') {
+            this.$store.commit('updatePublicKey', '');
+            this.$store.commit('updateSnackmsg', 'save_success');
+          } else {
+            // console
           }
           break;
         }

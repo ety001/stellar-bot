@@ -18,10 +18,10 @@
           <md-switch v-model="robotStatus" id="robot_status" name="robot_status" class="md-warn">{{ $t('robot_status', {'robotStatus': $t(robotStatusTxt)}) }}</md-switch>
         </md-list-item>
         <md-list-item>
-          <router-link to="/">Home</router-link>
+          <router-link to="/">{{ 'home' | translate }}</router-link>
         </md-list-item>
         <md-list-item md-expand-multiple>
-          <span>Language</span>
+          <span>{{ 'lang' | translate }}</span>
           <md-list-expand>
             <md-list>
               <md-list-item class="md-inset">
@@ -48,17 +48,20 @@ export default {
   props: {
     version: String,
   },
-  data: () => ({
-    lang: 'en',
-    robotStatus: false,
-    robotStatusTxt: 'off',
-  }),
+  data() {
+    return {
+      lang: 'en',
+      robotStatus: false,
+      robotStatusTxt: 'off',
+    };
+  },
   watch: {
     robotStatus() {
       this.robotStatusTxt = this.robotStatus ? 'on' : 'off';
     },
     lang(val) {
       this.$i18n.set(val);
+      this.$store.commit('updateLang', val);
     },
   },
   methods: {

@@ -16,8 +16,11 @@ import RobotExchangePair from '@/components/common/RobotExchangePair';
 
 export default {
   name: 'home',
-  data: () => ({
-  }),
+  data() {
+    return {
+
+    };
+  },
   methods: {
   },
   components: {

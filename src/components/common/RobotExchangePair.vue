@@ -37,7 +37,7 @@
             <md-table-head>{{ $t('exchange.counter') + '' + $t('wallet.asset') }}</md-table-head>
             <md-table-head>{{ $t('exchange.sell_rate') }}</md-table-head>
             <md-table-head>{{ $t('exchange.amount') }}</md-table-head>
-            <md-table-head></md-table-head>
+            <md-table-head v-if="isRateEditable"></md-table-head>
           </md-table-row>
         </md-table-header>
         <md-table-body>
@@ -78,7 +78,7 @@
                 <md-input :disabled="!isRateEditable"></md-input>
               </md-input-container>
             </md-table-cell>
-            <md-table-cell>
+            <md-table-cell v-if="isRateEditable">
               <md-button class="md-icon-button md-raised md-warn">
                 <md-icon>delete</md-icon>
               </md-button>

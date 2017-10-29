@@ -14,6 +14,8 @@
   "robot": "机器人",
   "language": "LANG",
   "example": "例如",
+  "home": "首页",
+  "lang": "语言",
   "wallet": {
     "base": "钱包",
     "config_your_private_key": "设置你的钱包私钥",
