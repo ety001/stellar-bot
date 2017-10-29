@@ -29,7 +29,9 @@
     "trustline": "Trustline",
     "asset_code": "Asset Code(Example: CNY)",
     "asset_issuer": "Asset Issuer(Example: GAREELUB43IRHWEASCFBLKHURCGMHE5IF6XSE7EXDLACYHGRHM43RFOX)",
-    "private_key_error": "PrivateKey format is error."
+    "private_key_error": "PrivateKey format is error.",
+    "remove_trustline_succ": "Remove Trustline Success.",
+    "remove_trustline_fail": "Remove Trustline Fail."
   },
   "exchange": {
     "exchange_pair": "Exchange Pair",

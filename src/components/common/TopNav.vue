@@ -4,7 +4,8 @@
       <md-button class="md-icon-button" v-on:click="toggleLeftSidenav">
         <md-icon>menu</md-icon>
       </md-button>
-      <h2 class="md-title site-title" style="flex: 1;">{{ 'site_title' | translate }}</h2>
+      <h2 class="md-title site-title" style="flex: 0.1;">{{ 'site_title' | translate }}</h2>
+      <md-spinner :md-size="40" md-indeterminate class="md-warn" v-if="isloading"></md-spinner>
     </md-toolbar>
 
     <md-sidenav class="md-left" ref="leftSidenav" @open="open('Left')" @close="close('Left')">
@@ -65,6 +66,11 @@ export default {
     lang(val) {
       this.$i18n.set(val);
       this.$store.commit('updateLang', val);
+    },
+  },
+  computed: {
+    isloading() {
+      return this.$store.getters.isloading;
     },
   },
   methods: {

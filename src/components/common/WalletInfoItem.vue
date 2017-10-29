@@ -15,8 +15,8 @@
       </md-input-container>
     </md-table-cell>
     <md-table-cell v-if="isMaxEditable">
-      <md-button class="md-icon-button md-raised md-warn">
-        <md-icon @click="removeTrustline">delete</md-icon>
+      <md-button v-if="detail.balance == 0" @click="removeTrustline" class="md-icon-button md-raised md-warn">
+        <md-icon>delete</md-icon>
       </md-button>
     </md-table-cell>
   </md-table-row>
@@ -54,16 +54,25 @@ export default {
   methods: {
     removeTrustline(e) {
       console.log(e);
-      Api.removeTrustline(
-        window.server,
-        this.detail.asset_code,
-        this.detail.asset_issuer,
-        (res) => {
-          console.log('ok:', res);
-        },
-        (errRes) => {
-          console.log(errRes);
-        });
+      if (this.$store.getters.privateKey) {
+        this.$store.commit('updateIsloading', true);
+        Api.removeTrustline(
+          window.server,
+          this.$store.getters.privateKey,
+          this.detail.asset_code,
+          this.detail.asset_issuer,
+          (res) => {
+            window.Sconsole(['removeTrustline succ', res]);
+            this.$store.commit('updateIsloading', false);
+            this.$store.commit('updateSnackmsg', 'wallet.remove_trustline_succ');
+          },
+          (errRes) => {
+            window.Sconsole(['removeTrustline fail', errRes]);
+            this.$store.commit('updateIsloading', false);
+            this.$store.commit('updateSnackmsg', 'wallet.remove_trustline_fail');
+          },
+        );
+      }
     },
   },
   filters: {

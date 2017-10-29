@@ -46,11 +46,30 @@ export default {
       .then(function(resp) { cb(resp); })
       .catch(function(err) { cbErr(err); });
   },
-  removeTrustline: (server, code, issuer, cb, cbErr) => {
-    const asset = StellarSdk.Asset(code, issuer);
-    server.operations()
-      .call()
-      .then(function(resp) { cb(resp); })
-      .catch(function(err) { cbErr(err); });
+  removeTrustline: (server, privateKey, code, issuer, cb, cbErr) => {
+    const asset = new StellarSdk.Asset(code, issuer);
+    const keyPair = StellarSdk.Keypair.fromSecret(privateKey);
+    try {
+      server.loadAccount(keyPair.publicKey())
+      .then(
+        (account) => {
+          const transaction = new StellarSdk.TransactionBuilder(account)
+              .addOperation(StellarSdk.Operation.changeTrust({ asset, limit: '0'}))
+              .build();
+          transaction.sign(keyPair);
+          return transaction;
+        })
+      .then((transaction) => {
+        server.submitTransaction(transaction)
+            .then(function (transactionResult) {
+                cb(transactionResult);
+            })
+            .catch(function (err) {
+                cbErr(err);
+            });
+      });
+    } catch (err) {
+      cbErr(err);
+    }
   },
 };

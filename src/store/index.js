@@ -20,6 +20,7 @@ export default new Vuex.Store({
     orderBook: [],
     exchangeVals: [],
     maxes: [],
+    isloading: false,
   },
   mutations: {
     updatePublicKey(state, publicKey) {
@@ -114,10 +115,19 @@ export default new Vuex.Store({
         state.maxes[existIndex] = data;
       }
     },
+    // removeTrustline(state, code, issuer) {
+    //   // state.balances.forEach({})
+    // },
+    updateIsloading(state, status) {
+      state.isloading = status;
+    },
   },
   getters: {
     publicKey(state) {
       return state.publicKey;
+    },
+    privateKey(state) {
+      return state.privateKey;
     },
     lang(state) {
       return state.lang;
@@ -142,6 +152,9 @@ export default new Vuex.Store({
     },
     maxes(state) {
       return state.maxes;
+    },
+    isloading(state) {
+      return state.isloading;
     },
   },
   plugins: [
