@@ -16,6 +16,8 @@ export default new Vuex.Store({
     nativeBalance: 0,
     balances: [],
     issuers: [],
+    orderBook: [],
+    exchangeVals: [],
   },
   mutations: {
     updatePublicKey(state, publicKey) {
@@ -46,6 +48,42 @@ export default new Vuex.Store({
       window.Sconsole(['update issuers']);
       state.issuers = issuers;
     },
+    updateOrderBook(state, data) {
+      window.Sconsole(['update orderBook']);
+      const skey = data.skey;
+      const orderBook = data.orderBook;
+      let existIndex = null;
+      const tmp = state.orderBook.filter((val, index) => {
+        if (val.skey === skey) {
+          existIndex = index;
+          return true;
+        }
+        return false;
+      });
+      if (tmp.length > 0) {
+        state.orderBook[existIndex] = orderBook;
+      } else {
+        state.orderBook.push(data);
+      }
+    },
+    updateExchangeVals(state, data) {
+      window.Sconsole(['update exchangeVals']);
+      const skey = data.skey;
+      const exchangeVal = data.exchangeVal;
+      let existIndex = null;
+      const tmp = state.exchangeVals.filter((val, index) => {
+        if (val.skey === skey) {
+          existIndex = index;
+          return true;
+        }
+        return false;
+      });
+      if (tmp.length > 0) {
+        state.exchangeVals[existIndex] = exchangeVal;
+      } else {
+        state.exchangeVals.push(data);
+      }
+    },
   },
   getters: {
     publicKey(state) {
@@ -62,6 +100,12 @@ export default new Vuex.Store({
     },
     issuers(state) {
       return state.issuers;
+    },
+    orderBook(state) {
+      return state.orderBook;
+    },
+    exchangeVals(state) {
+      return state.exchangeVals;
     },
   },
   plugins: [

@@ -73,12 +73,12 @@
           <md-table-row v-for="(detail, index) in balances" :key="index">
             <md-table-cell>
               <span>
-                {{ detail.asset_type === 'native' ? 'XLM' : detail.asset_code }}
-                <md-tooltip v-if="detail.asset_type !== 'native'" md-direction="right">{{ detail.asset_issuer }}</md-tooltip>
+                {{ detail.asset_code }}
+                <md-tooltip md-direction="right">{{ detail.asset_issuer }}</md-tooltip>
               </span>
             </md-table-cell>
             <md-table-cell>{{ detail.balance }}</md-table-cell>
-            <md-table-cell>2112.122</md-table-cell>
+            <md-table-cell>{{ exchangeVals | valFilter(detail) }}</md-table-cell>
             <md-table-cell>
               <md-input-container>
                 <label></label>
@@ -153,6 +153,9 @@ export default {
     nativeBalance() {
       return this.$store.getters.nativeBalance;
     },
+    exchangeVals() {
+      return this.$store.getters.exchangeVals;
+    },
   },
   watch: {
   },
@@ -220,6 +223,20 @@ export default {
     },
     saveChange() {
       this.isMaxEditable = false;
+    },
+  },
+  filters: {
+    valFilter: (vals, asset) => {
+      const len = vals.length;
+      console.log('vals:', vals);
+      if (len > 0) {
+        for (let i = 0; i < len; i += 1) {
+          if (vals[i].skey === `${asset.asset_code}_${asset.asset_issuer}`) {
+            return vals[i].exchangeVal;
+          }
+        }
+      }
+      return '';
     },
   },
 };

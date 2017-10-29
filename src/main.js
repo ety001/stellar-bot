@@ -23,6 +23,9 @@ window.Sconsole = (resultArrOrStr, msgType = 'debug') => {
   }
 };
 
+// Global Func
+window.fixNumCustom = (number, fixed = 6) => Number(number).toFixed(fixed);
+
 // init VueMaterial
 Vue.use(VueMaterial);
 Vue.material.registerTheme('default', {
@@ -76,16 +79,31 @@ new Vue({
             });
           }
           this.$store.commit('updateAllIssuers', allIssuers);
-        }, (res) => {
-          window.Sconsole(['update wallet info fail', res]);
+          this.updateOrderbookPrice();
+        }, (errRes) => {
+          window.Sconsole(['update wallet info fail', errRes]);
         });
       }
     },
     updateOrderbookPrice() {
       window.Sconsole(['update orderbook and price']);
+      // get balances from vuex store
       const balances = this.$store.getters.balances;
       if (balances.length > 1) {
-        console.log(123);
+        balances.forEach((detail) => {
+          const sellingAsset = { asset_code: detail.asset_code, asset_issuer: detail.asset_issuer };
+          const buyingAsset = { asset_code: 'XLM' };
+          Api.getOrderBook(this.server, sellingAsset, buyingAsset, (res) => {
+            const skey = `${detail.asset_code}_${detail.asset_issuer}`;
+            this.$store.commit('updateOrderBook', { skey, orderBook: res });
+            const bids = res.bids; // buy xlm from these orders
+            if (bids[0]) {
+              this.$store.commit('updateExchangeVals', { skey, exchangeVal: window.fixNumCustom(detail.balance * bids[0].price) });
+            }
+          }, (errRes) => {
+            window.Sconsole(['updateOrderbookPrice fail', errRes]);
+          });
+        });
       }
     },
   },
