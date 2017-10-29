@@ -38,6 +38,9 @@
         <md-list-item>
           <span>v{{ version }}</span>
         </md-list-item>
+        <md-list-item>
+          <md-button class="md-raised md-accent" @click="reset">{{ 'reset' | translate }}</md-button>
+        </md-list-item>
       </md-list>
     </md-sidenav>
   </div>
@@ -73,6 +76,10 @@ export default {
     },
     close(ref) {
       window.Sconsole(['close', ref]);
+    },
+    reset() {
+      window.localStorage.vuex = null;
+      window.location.reload();
     },
   },
 };

@@ -18,7 +18,7 @@
             <span>{{ $t('settings', {what_to: $t('wallet.base')}) }}</span>
             <md-icon>settings</md-icon>
           </md-menu-item>
-          <md-menu-item @click="openDialog('add_trust')">
+          <md-menu-item @click="openDialog('add_trustline')">
             <span>{{ $t('add', {what: $t('wallet.trustline')} ) }}</span>
             <md-icon>add</md-icon>
           </md-menu-item>
@@ -44,7 +44,7 @@
             <md-table-head>{{ 'wallet.balance' | translate }}</md-table-head>
             <md-table-head>{{ 'wallet.value' | translate }} (XLM)</md-table-head>
             <md-table-head>
-              {{ $t('exchange.max') }} (CNY)
+              {{ $t('exchange.max') }} (XLM)
               <md-tooltip md-direction="right">{{ $t('exchange.calculated_in_ripplefox_cny_price')}}</md-tooltip></md-table-head>
             <md-table-head v-if="isMaxEditable"></md-table-head>
           </md-table-row>
@@ -63,34 +63,14 @@
             <md-table-cell>
               <md-input-container>
                 <label></label>
-                <md-input class="asset_max" :disabled="!isMaxEditable"></md-input>
+                <md-input class="asset_max" :disabled="!isMaxEditable" v-model="nativeMax"></md-input>
               </md-input-container>
             </md-table-cell>
             <md-table-cell v-if="isMaxEditable">
             </md-table-cell>
           </md-table-row>
 
-          <md-table-row v-for="(detail, index) in balances" :key="index">
-            <md-table-cell>
-              <span>
-                {{ detail.asset_code }}
-                <md-tooltip md-direction="right">{{ detail.asset_issuer }}</md-tooltip>
-              </span>
-            </md-table-cell>
-            <md-table-cell>{{ detail.balance }}</md-table-cell>
-            <md-table-cell>{{ exchangeVals | valFilter(detail) }}</md-table-cell>
-            <md-table-cell>
-              <md-input-container>
-                <label></label>
-                <md-input class="asset_max" :disabled="!isMaxEditable"></md-input>
-              </md-input-container>
-            </md-table-cell>
-            <md-table-cell v-if="isMaxEditable">
-              <md-button class="md-icon-button md-raised md-warn">
-                <md-icon>delete</md-icon>
-              </md-button>
-            </md-table-cell>
-          </md-table-row>
+          <wallet-info-item v-for="(detail, index) in balances" :key="detail.skey" :detail="detail" :exchangeVals="exchangeVals" :isMaxEditable="isMaxEditable" :maxes="maxes" :isSave="isSave"></wallet-info-item>
         </md-table-body>
       </md-table>
     </md-card-content>
@@ -132,6 +112,7 @@
 <script>
 import DialogForm from '@/components/common/DialogForm';
 import Api from '@/lib/Api';
+import WalletInfoItem from '@/components/common/WalletInfoItem';
 
 export default {
   data() {
@@ -144,6 +125,8 @@ export default {
       assetCode: null,
       assetIssuer: null,
       isMaxEditable: false,
+      isSave: '',
+      nativeMax: '',
     };
   },
   computed: {
@@ -156,11 +139,15 @@ export default {
     exchangeVals() {
       return this.$store.getters.exchangeVals;
     },
+    maxes() {
+      return this.$store.getters.maxes;
+    },
   },
   watch: {
   },
   components: {
     'dialog-form': DialogForm,
+    'wallet-info-item': WalletInfoItem,
   },
   methods: {
     openDialog(ref) {
@@ -169,7 +156,9 @@ export default {
     onOpen(ref) {
       switch (ref) {
         case 'set_privary_key': {
-          // this.walletPrivateKey = null;
+          break;
+        }
+        case 'add_trustline': {
           break;
         }
         default: {
@@ -220,24 +209,16 @@ export default {
     },
     editMax() {
       this.isMaxEditable = true;
+      this.isSave = 'opening';
     },
     saveChange() {
       this.isMaxEditable = false;
+      this.isSave = 'saved';
+      this.$store.commit('updateNativeMax', this.nativeMax);
     },
   },
-  filters: {
-    valFilter: (vals, asset) => {
-      const len = vals.length;
-      console.log('vals:', vals);
-      if (len > 0) {
-        for (let i = 0; i < len; i += 1) {
-          if (vals[i].skey === `${asset.asset_code}_${asset.asset_issuer}`) {
-            return vals[i].exchangeVal;
-          }
-        }
-      }
-      return '';
-    },
+  mounted() {
+    this.nativeMax = this.$store.getters.nativeMax;
   },
 };
 </script>

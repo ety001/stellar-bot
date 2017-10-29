@@ -16,6 +16,7 @@
   "example": "例如",
   "home": "首页",
   "lang": "语言",
+  "reset": "重置配置",
   "wallet": {
     "base": "钱包",
     "config_your_private_key": "设置你的钱包私钥",

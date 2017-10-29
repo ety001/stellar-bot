@@ -14,10 +14,12 @@ export default new Vuex.Store({
     privateKey: null,
     lang: 'en',
     nativeBalance: 0,
+    nativeMax: 0,
     balances: [],
     issuers: [],
     orderBook: [],
     exchangeVals: [],
+    maxes: [],
   },
   mutations: {
     updatePublicKey(state, publicKey) {
@@ -40,9 +42,22 @@ export default new Vuex.Store({
       window.Sconsole(['update native balances']);
       state.nativeBalance = nativeBalance;
     },
+    updateNativeMax(state, nativeMax) {
+      window.Sconsole(['update native max']);
+      state.nativeMax = nativeMax;
+    },
     updateBalances(state, balances) {
       window.Sconsole(['update balances']);
+      // update balances
       state.balances = balances;
+      // init maxes
+      balances.forEach((detail) => {
+        const key = `${detail.asset_code}_${detail.asset_issuer}`;
+        const tmp = state.maxes.filter(val => val.skey === key);
+        if (tmp.length === 0) {
+          state.maxes.push({ skey: key, max: 0 });
+        }
+      });
     },
     updateAllIssuers(state, issuers) {
       window.Sconsole(['update issuers']);
@@ -51,9 +66,9 @@ export default new Vuex.Store({
     updateOrderBook(state, data) {
       window.Sconsole(['update orderBook']);
       const skey = data.skey;
-      const orderBook = data.orderBook;
       let existIndex = null;
       const tmp = state.orderBook.filter((val, index) => {
+        window.Sconsole(['test updateOrderBook', val, index]);
         if (val.skey === skey) {
           existIndex = index;
           return true;
@@ -61,7 +76,7 @@ export default new Vuex.Store({
         return false;
       });
       if (tmp.length > 0) {
-        state.orderBook[existIndex] = orderBook;
+        state.orderBook[existIndex] = data;
       } else {
         state.orderBook.push(data);
       }
@@ -69,7 +84,6 @@ export default new Vuex.Store({
     updateExchangeVals(state, data) {
       window.Sconsole(['update exchangeVals']);
       const skey = data.skey;
-      const exchangeVal = data.exchangeVal;
       let existIndex = null;
       const tmp = state.exchangeVals.filter((val, index) => {
         if (val.skey === skey) {
@@ -79,9 +93,25 @@ export default new Vuex.Store({
         return false;
       });
       if (tmp.length > 0) {
-        state.exchangeVals[existIndex] = exchangeVal;
+        state.exchangeVals[existIndex] = data;
       } else {
         state.exchangeVals.push(data);
+      }
+    },
+    updateMaxes(state, data) {
+      window.Sconsole(['update maxes']);
+      let existIndex = null;
+      const tmp = state.maxes.filter((val, index) => {
+        if (val.skey === data.skey) {
+          existIndex = index;
+          return true;
+        }
+        return false;
+      });
+      if (tmp.length === 0) {
+        state.maxes.push(data);
+      } else {
+        state.maxes[existIndex] = data;
       }
     },
   },
@@ -95,6 +125,9 @@ export default new Vuex.Store({
     nativeBalance(state) {
       return state.nativeBalance;
     },
+    nativeMax(state) {
+      return state.nativeMax;
+    },
     balances(state) {
       return state.balances;
     },
@@ -106,6 +139,9 @@ export default new Vuex.Store({
     },
     exchangeVals(state) {
       return state.exchangeVals;
+    },
+    maxes(state) {
+      return state.maxes;
     },
   },
   plugins: [
