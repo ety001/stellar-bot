@@ -31,7 +31,9 @@
     "asset_issuer": "Asset Issuer(Example: GAREELUB43IRHWEASCFBLKHURCGMHE5IF6XSE7EXDLACYHGRHM43RFOX)",
     "private_key_error": "PrivateKey format is error.",
     "remove_trustline_succ": "Remove Trustline Success.",
-    "remove_trustline_fail": "Remove Trustline Fail."
+    "remove_trustline_fail": "Remove Trustline Fail.",
+    "add_trustline_succ": "Add Trustline Success.",
+    "add_trustline_fail": "Add Trustline Fail."
   },
   "exchange": {
     "exchange_pair": "Exchange Pair",

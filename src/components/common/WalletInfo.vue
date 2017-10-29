@@ -191,10 +191,31 @@ export default {
         }
         case 'add_trustline': {
           if (type === 'ok') {
-            this.$store.commit('updatePublicKey', '');
-            this.$store.commit('updateSnackmsg', 'save_success');
+            this.$store.commit('updateIsloading', true);
+            Api.addTrustline(
+              window.server,
+              this.$store.getters.privateKey,
+              this.assetCode,
+              this.assetIssuer,
+              (res) => {
+                window.Sconsole(['addTrustline succ', res]);
+                this.$store.commit('updateIsloading', false);
+                this.$store.commit('updateSnackmsg', 'wallet.add_trustline_succ');
+                this.assetCode = '';
+                this.assetIssuer = '';
+              },
+              (errRes) => {
+                window.Sconsole(['addTrustline fail', errRes]);
+                this.$store.commit('updateIsloading', false);
+                this.$store.commit('updateSnackmsg', 'wallet.add_trustline_fail');
+                this.assetCode = '';
+                this.assetIssuer = '';
+              },
+            );
           } else {
             // console
+            this.assetCode = '';
+            this.assetIssuer = '';
           }
           break;
         }

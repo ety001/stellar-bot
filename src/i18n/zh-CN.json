@@ -31,7 +31,9 @@
     "asset_issuer": "发行网关(例如: GAREELUB43IRHWEASCFBLKHURCGMHE5IF6XSE7EXDLACYHGRHM43RFOX)",
     "private_key_error": "私钥格式错误",
     "remove_trustline_succ": "删除授信成功",
-    "remove_trustline_fail": "删除授信失败"
+    "remove_trustline_fail": "删除授信失败",
+    "add_trustline_succ": "添加授信成功",
+    "add_trustline_fail": "添加授信失败"
   },
   "exchange": {
     "exchange_pair": "交易对",
