@@ -115,9 +115,9 @@ new Vue({
     StellarSdk.Network.usePublicNetwork();
     // interval function
     this.intervalFunc();
-    // this.interval = setInterval(() => {
-    //   this.intervalFunc();
-    // }, intervalTime * 1000);
+    this.interval = setInterval(() => {
+      this.intervalFunc();
+    }, intervalTime * 1000);
     console.log(intervalTime);
   },
 });

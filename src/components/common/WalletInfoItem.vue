@@ -53,7 +53,7 @@ export default {
   },
   methods: {
     removeTrustline(e) {
-      console.log(e);
+      window.Sconsole(['removeTrustline', e]);
       if (this.$store.getters.privateKey) {
         this.$store.commit('updateIsloading', true);
         Api.removeTrustline(

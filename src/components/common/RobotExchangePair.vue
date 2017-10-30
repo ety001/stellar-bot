@@ -41,49 +41,7 @@
           </md-table-row>
         </md-table-header>
         <md-table-body>
-          <md-table-row>
-            <md-table-cell>
-              <span>
-                CNY
-                <md-tooltip md-direction="bottom">GCRF5BWQLVAEDIE4J25KJ5XKC3JI5XKPCT2BA7PZD7B2SW3LSPVX5ENC</md-tooltip>
-              </span>
-            </md-table-cell>
-            <md-table-cell>
-              <md-input-container>
-                <label></label>
-                <md-input :disabled="!isRateEditable"></md-input>
-              </md-input-container>
-            </md-table-cell>
-            <md-table-cell>
-              <md-input-container>
-                <label></label>
-                <md-input :disabled="!isRateEditable"></md-input>
-              </md-input-container>
-            </md-table-cell>
-            <md-table-cell>
-              <span>
-                USD
-                <md-tooltip md-direction="bottom">GCRF5BWQLVAEDIE4J25KJ5XKC3JI5XKPCT2BA7PZD7B2SW3LSPVX5ENC</md-tooltip>
-              </span>
-            </md-table-cell>
-            <md-table-cell>
-              <md-input-container>
-                <label></label>
-                <md-input :disabled="!isRateEditable"></md-input>
-              </md-input-container>
-            </md-table-cell>
-            <md-table-cell>
-              <md-input-container>
-                <label></label>
-                <md-input :disabled="!isRateEditable"></md-input>
-              </md-input-container>
-            </md-table-cell>
-            <md-table-cell v-if="isRateEditable">
-              <md-button class="md-icon-button md-raised md-warn">
-                <md-icon>delete</md-icon>
-              </md-button>
-            </md-table-cell>
-          </md-table-row>
+          <pair-item v-for="pair in exchangePairs" :key="pair.skey" :pair="pair" :isRateEditable="isRateEditable" :isSave="isSave"></pair-item>
         </md-table-body>
       </md-table>
     </md-card-content>
@@ -98,19 +56,19 @@
       ref="add_exchange_pair">
       <md-input-container md-inline>
         <label>{{ $t('exchange.base_asset') }}</label>
-        <md-input type="password" v-model="baseAsset"></md-input>
+        <md-input v-model="baseAsset"></md-input>
       </md-input-container>
       <md-input-container md-inline>
         <label>{{ $t('exchange.base_issuer') }}</label>
-        <md-input type="password" v-model="baseIssuer"></md-input>
+        <md-input v-model="baseIssuer"></md-input>
       </md-input-container>
       <md-input-container md-inline>
         <label>{{ $t('exchange.counter_asset') }}</label>
-        <md-input type="password" v-model="counterAsset"></md-input>
+        <md-input v-model="counterAsset"></md-input>
       </md-input-container>
       <md-input-container md-inline>
         <label>{{ $t('exchange.counter_issuer') }}</label>
-        <md-input type="password" v-model="counterIssuer"></md-input>
+        <md-input v-model="counterIssuer"></md-input>
       </md-input-container>
     </dialog-form>
 
@@ -119,6 +77,7 @@
 
 <script>
 import DialogForm from '@/components/common/DialogForm';
+import PairItem from '@/components/common/RobotExchangePairItem';
 
 export default {
   data() {
@@ -128,10 +87,17 @@ export default {
       counterAsset: null,
       counterIssuer: null,
       isRateEditable: false,
+      isSave: '',
     };
   },
   components: {
     'dialog-form': DialogForm,
+    'pair-item': PairItem,
+  },
+  computed: {
+    exchangePairs() {
+      return this.$store.getters.exchangePairs;
+    },
   },
   watch: {
   },
@@ -150,7 +116,30 @@ export default {
       switch (ref) {
         case 'add_exchange_pair':
           if (type === 'ok') {
-            // To update state
+            // TODO: detect pair exist.
+            // const issuers = this.$store.getters.issuers;
+            // if (issuers.indexOf(this.baseIssuer.toUpperCase()) ||
+            //   issuers.indexOf(this.counterIssuer.toUpperCase())) {
+            //   this.$store.commit('updateSnackmsg', 'exchange.has_existed');
+            //   return;
+            // }
+            const baseAsset = this.baseAsset ? this.baseAsset.toUpperCase() : null;
+            const baseIssuer = this.baseIssuer ? this.baseIssuer.toUpperCase() : null;
+            const counterAsset = this.counterAsset ? this.counterAsset.toUpperCase() : null;
+            const counterIssuer = this.counterIssuer ? this.counterIssuer.toUpperCase() : null;
+            const pair = {
+              skey: `${baseAsset}${baseIssuer}_${counterAsset}${counterIssuer}`,
+              skey2: `${counterAsset}${counterIssuer}_${baseAsset}${baseIssuer}`,
+              baseAsset,
+              baseIssuer,
+              baseRate: 0,
+              baseAmount: 0,
+              counterAsset,
+              counterIssuer,
+              counterRate: 0,
+              counterAmount: 0,
+            };
+            this.$store.commit('updateExchangePairs', pair);
           }
           this.clearAddExchangePairInput();
           break;
@@ -167,9 +156,11 @@ export default {
     },
     editParams() {
       this.isRateEditable = true;
+      this.isSave = 'opening';
     },
     saveChange() {
       this.isRateEditable = false;
+      this.isSave = 'saved';
     },
   },
 };

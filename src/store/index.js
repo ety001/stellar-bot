@@ -21,6 +21,7 @@ export default new Vuex.Store({
     exchangeVals: [],
     maxes: [],
     isloading: false,
+    exchangePairs: [],
   },
   mutations: {
     updatePublicKey(state, publicKey) {
@@ -121,6 +122,38 @@ export default new Vuex.Store({
     updateIsloading(state, status) {
       state.isloading = status;
     },
+    updateExchangePairs(state, pair) {
+      const tmp = state.exchangePairs.filter((val) => {
+        if (val.skey === pair.skey || val.skey === pair.skey2) {
+          return true;
+        }
+        return false;
+      });
+      if (tmp.length === 0) {
+        state.exchangePairs.push(pair);
+      }
+    },
+    updateExchangePairRateAmount(state, data) {
+      state.exchangePairs.filter((val, index) => {
+        if (val.skey === data.skey) {
+          state.exchangePairs[index].baseRate = data.baseRate;
+          state.exchangePairs[index].baseAmount = data.baseAmount;
+          state.exchangePairs[index].counterRate = data.counterRate;
+          state.exchangePairs[index].counterAmount = data.counterAmount;
+          return true;
+        }
+        return false;
+      });
+    },
+    removeExchangePair(state, skey) {
+      const tmp = state.exchangePairs.filter((val) => {
+        if (val.skey !== skey) {
+          return true;
+        }
+        return false;
+      });
+      state.exchangePairs = tmp;
+    },
   },
   getters: {
     publicKey(state) {
@@ -155,6 +188,9 @@ export default new Vuex.Store({
     },
     isloading(state) {
       return state.isloading;
+    },
+    exchangePairs(state) {
+      return state.exchangePairs;
     },
   },
   plugins: [
