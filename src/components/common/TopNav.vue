@@ -7,7 +7,7 @@
       <h2 class="md-title site-title" style="flex: 0.1;">{{ 'site_title' | translate }}</h2>
       <md-spinner :md-size="40" md-indeterminate class="md-warn" v-if="isloading"></md-spinner>
     </md-toolbar>
-
+    <md-progress class="md-warn" :md-progress="progress"></md-progress>
     <md-sidenav class="md-left" ref="leftSidenav" @open="open('Left')" @close="close('Left')">
       <md-toolbar>
         <div class="md-toolbar-container">
@@ -57,11 +57,13 @@ export default {
       lang: 'en',
       robotStatus: false,
       robotStatusTxt: 'off',
+      progress: 0,
     };
   },
   watch: {
     robotStatus() {
       this.robotStatusTxt = this.robotStatus ? 'on' : 'off';
+      this.$store.commit('updateRobotStatus', this.robotStatus);
     },
     lang(val) {
       this.$i18n.set(val);
@@ -87,6 +89,14 @@ export default {
       window.localStorage.vuex = null;
       window.location.reload();
     },
+  },
+  mounted() {
+    let count = 0;
+    setInterval(() => {
+      if (count === this.$store.getters.intervalTime * 5) count = 0;
+      this.progress = 100 * (count / (this.$store.getters.intervalTime * 5));
+      count += 1;
+    }, 200);
   },
 };
 </script>
