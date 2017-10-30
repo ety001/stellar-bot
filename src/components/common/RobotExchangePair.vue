@@ -33,10 +33,10 @@
           <md-table-row>
             <md-table-head>{{ $t('exchange.base') + '' + $t('wallet.asset') }}</md-table-head>
             <md-table-head>{{ $t('exchange.buy_rate') }}</md-table-head>
-            <md-table-head>{{ $t('exchange.amount') }}</md-table-head>
+            <md-table-head>{{ $t('exchange.value') }}(XLM)</md-table-head>
             <md-table-head>{{ $t('exchange.counter') + '' + $t('wallet.asset') }}</md-table-head>
             <md-table-head>{{ $t('exchange.sell_rate') }}</md-table-head>
-            <md-table-head>{{ $t('exchange.amount') }}</md-table-head>
+            <md-table-head>{{ $t('exchange.value') }}(XLM)</md-table-head>
             <md-table-head v-if="isRateEditable"></md-table-head>
           </md-table-row>
         </md-table-header>
@@ -133,11 +133,11 @@ export default {
               baseAsset,
               baseIssuer,
               baseRate: 0,
-              baseAmount: 0,
+              baseValue: 0,
               counterAsset,
               counterIssuer,
               counterRate: 0,
-              counterAmount: 0,
+              counterValue: 0,
             };
             this.$store.commit('updateExchangePairs', pair);
           }

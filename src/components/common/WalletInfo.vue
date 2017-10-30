@@ -178,6 +178,9 @@ export default {
                 this.$store.commit('updatePublicKey', res.publicKey());
                 this.$store.commit('updatePrivateKey', this.walletPrivateKey);
                 this.$store.commit('updateSnackmsg', 'save_success');
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1000);
               },
               () => {
                 this.$store.commit('updateSnackmsg', 'wallet.private_key_error');
@@ -192,11 +195,13 @@ export default {
         case 'add_trustline': {
           if (type === 'ok') {
             this.$store.commit('updateIsloading', true);
+            const assetCode = this.assetCode ? this.assetCode.toUpperCase() : null;
+            const assetIssuer = this.assetIssuer ? this.assetIssuer.toUpperCase() : null;
             Api.addTrustline(
               window.server,
               this.$store.getters.privateKey,
-              this.assetCode,
-              this.assetIssuer,
+              assetCode,
+              assetIssuer,
               (res) => {
                 window.Sconsole(['addTrustline succ', res]);
                 this.$store.commit('updateIsloading', false);

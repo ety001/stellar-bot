@@ -45,7 +45,7 @@
     "calculated_in_ripplefox_cny_price": "The Maximum Amount Of Current Asset You Can Hold. (Calculated in RippleFox CNY Price)",
     "buy_rate": "Buy Rate(%)",
     "sell_rate": "Sell Rate(%)",
-    "amount": "Amount",
+    "value": "Value",
     "base_asset": "Base Asset (Example: XLM)",
     "base_issuer": "Base Issuer (Example: If asset is XLM, please empty this input)",
     "counter_asset": "Counter Asset (Example: CNY)",

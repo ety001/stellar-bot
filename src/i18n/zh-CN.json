@@ -45,7 +45,7 @@
     "calculated_in_ripplefox_cny_price": "你可以持有的数量上限 (以RippleFox的CNY价格计算)",
     "buy_rate": "买入比(%)",
     "sell_rate": "卖出比(%)",
-    "amount": "交易数量",
+    "value": "价值",
     "base_asset": "基础货币 (例如: XLM)",
     "base_issuer": "基础发行网关 (例如: 如果货币填写的是XLM，则此处留空)",
     "counter_asset": "对手货币 (例如: CNY)",

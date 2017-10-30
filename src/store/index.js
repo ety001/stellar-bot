@@ -10,6 +10,7 @@ export default new Vuex.Store({
   strict: debug,
   state: {
     snackmsg: null,
+    intervalTime: 30,
     publicKey: null,
     privateKey: null,
     lang: 'en',
@@ -19,37 +20,44 @@ export default new Vuex.Store({
     issuers: [],
     orderBook: [],
     exchangeVals: [],
+    exchangePrices: [],
     maxes: [],
     isloading: false,
     exchangePairs: [],
+    robotStatus: false,
+    offers: [],
+    offerLocks: [],
   },
   mutations: {
+    intervalTime(state, intervalTime) {
+      state.intervalTime = intervalTime;
+    },
     updatePublicKey(state, publicKey) {
-      window.Sconsole(['update publicKey']);
+      // window.Sconsole(['update publicKey']);
       state.publicKey = publicKey;
     },
     updatePrivateKey(state, privateKey) {
-      window.Sconsole(['update privateKey']);
+      // window.Sconsole(['update privateKey']);
       state.privateKey = privateKey;
     },
     updateSnackmsg(state, msg) {
-      window.Sconsole(['update snackmsg']);
+      // window.Sconsole(['update snackmsg']);
       state.snackmsg = msg;
     },
     updateLang(state, lang) {
-      window.Sconsole(['update lang']);
+      // window.Sconsole(['update lang']);
       state.lang = lang;
     },
     updateNativeBalance(state, nativeBalance) {
-      window.Sconsole(['update native balances']);
+      // window.Sconsole(['update native balances']);
       state.nativeBalance = nativeBalance;
     },
     updateNativeMax(state, nativeMax) {
-      window.Sconsole(['update native max']);
+      // window.Sconsole(['update native max']);
       state.nativeMax = nativeMax;
     },
     updateBalances(state, balances) {
-      window.Sconsole(['update balances']);
+      // window.Sconsole(['update balances']);
       // update balances
       state.balances = balances;
       // init maxes
@@ -62,11 +70,11 @@ export default new Vuex.Store({
       });
     },
     updateAllIssuers(state, issuers) {
-      window.Sconsole(['update issuers']);
+      // window.Sconsole(['update issuers']);
       state.issuers = issuers;
     },
     updateOrderBook(state, data) {
-      window.Sconsole(['update orderBook']);
+      // window.Sconsole(['update orderBook']);
       const skey = data.skey;
       let existIndex = null;
       const tmp = state.orderBook.filter((val, index) => {
@@ -84,7 +92,7 @@ export default new Vuex.Store({
       }
     },
     updateExchangeVals(state, data) {
-      window.Sconsole(['update exchangeVals']);
+      // window.Sconsole(['update exchangeVals']);
       const skey = data.skey;
       let existIndex = null;
       const tmp = state.exchangeVals.filter((val, index) => {
@@ -100,8 +108,25 @@ export default new Vuex.Store({
         state.exchangeVals.push(data);
       }
     },
+    updateExchangePrices(state, data) {
+      // window.Sconsole(['update exchangePrices']);
+      const skey = data.skey;
+      let existIndex = null;
+      const tmp = state.exchangePrices.filter((val, index) => {
+        if (val.skey === skey) {
+          existIndex = index;
+          return true;
+        }
+        return false;
+      });
+      if (tmp.length > 0) {
+        state.exchangePrices[existIndex] = data;
+      } else {
+        state.exchangePrices.push(data);
+      }
+    },
     updateMaxes(state, data) {
-      window.Sconsole(['update maxes']);
+      // window.Sconsole(['update maxes']);
       let existIndex = null;
       const tmp = state.maxes.filter((val, index) => {
         if (val.skey === data.skey) {
@@ -137,9 +162,9 @@ export default new Vuex.Store({
       state.exchangePairs.filter((val, index) => {
         if (val.skey === data.skey) {
           state.exchangePairs[index].baseRate = data.baseRate;
-          state.exchangePairs[index].baseAmount = data.baseAmount;
+          state.exchangePairs[index].baseValue = data.baseValue;
           state.exchangePairs[index].counterRate = data.counterRate;
-          state.exchangePairs[index].counterAmount = data.counterAmount;
+          state.exchangePairs[index].counterValue = data.counterValue;
           return true;
         }
         return false;
@@ -154,8 +179,32 @@ export default new Vuex.Store({
       });
       state.exchangePairs = tmp;
     },
+    updateRobotStatus(state, status) {
+      state.robotStatus = status;
+    },
+    updateOffers(state, offers) {
+      state.offers = offers;
+    },
+    updateOrderLock(state, lockInfo) {
+      let existIndex = null;
+      const tmp = state.offerLocks.filter((detail, index) => {
+        if (detail.skey === lockInfo.skey) {
+          existIndex = index;
+          return true;
+        }
+        return false;
+      });
+      if (tmp.length > 0) {
+        state.offerLocks[existIndex] = lockInfo;
+      } else {
+        state.offerLocks.push(lockInfo);
+      }
+    },
   },
   getters: {
+    intervalTime(state) {
+      return state.intervalTime;
+    },
     publicKey(state) {
       return state.publicKey;
     },
@@ -183,6 +232,9 @@ export default new Vuex.Store({
     exchangeVals(state) {
       return state.exchangeVals;
     },
+    exchangePrices(state) {
+      return state.exchangePrices;
+    },
     maxes(state) {
       return state.maxes;
     },
@@ -191,6 +243,15 @@ export default new Vuex.Store({
     },
     exchangePairs(state) {
       return state.exchangePairs;
+    },
+    robotStatus(state) {
+      return state.robotStatus;
+    },
+    offers(state) {
+      return state.offers;
+    },
+    offerLocks(state) {
+      return state.offerLocks;
     },
   },
   plugins: [
