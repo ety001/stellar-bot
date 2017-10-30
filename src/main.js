@@ -13,7 +13,7 @@ import transZhCn from './i18n/zh-CN.json';
 import Api from './lib/Api';
 
 const VERSION = '0.0.5';
-const intervalTime = 10;
+const intervalTime = 20;
 
 window.progress = 0;
 // Debug
