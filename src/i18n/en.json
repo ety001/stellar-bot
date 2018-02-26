@@ -51,5 +51,6 @@
     "counter_asset": "Counter Asset (Example: CNY)",
     "counter_issuer": "Counter Issuer (Example: GAREELUB43IRHWEASCFBLKHURCGMHE5IF6XSE7EXDLACYHGRHM43RFOX)"
   },
-  "save_success": "Save Success!"
+  "save_success": "Save Success!",
+  "manage_offers": "Manage Offers"
 }

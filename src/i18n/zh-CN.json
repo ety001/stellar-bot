@@ -51,5 +51,6 @@
     "counter_asset": "对手货币 (例如: CNY)",
     "counter_issuer": "对手发行网关 (Example: GAREELUB43IRHWEASCFBLKHURCGMHE5IF6XSE7EXDLACYHGRHM43RFOX)"
   },
-  "save_success": "保存成功"
+  "save_success": "保存成功",
+  "manage_offers": "管理委托"
 }
