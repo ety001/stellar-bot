@@ -52,5 +52,11 @@
     "counter_issuer": "Counter Issuer (Example: GAREELUB43IRHWEASCFBLKHURCGMHE5IF6XSE7EXDLACYHGRHM43RFOX)"
   },
   "save_success": "Save Success!",
-  "manage_offers": "Manage Offers"
+  "manage_offers": "Manage Offers",
+  "order_list": {
+    "title": "Order",
+    "buy_list": "Buy List",
+    "sell_list": "Sell List",
+    "my_list": "My Order List"
+  }
 }

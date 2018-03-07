@@ -52,5 +52,11 @@
     "counter_issuer": "对手发行网关 (Example: GAREELUB43IRHWEASCFBLKHURCGMHE5IF6XSE7EXDLACYHGRHM43RFOX)"
   },
   "save_success": "保存成功",
-  "manage_offers": "管理委托"
+  "manage_offers": "管理委托",
+  "order_list": {
+    "title": "委托单",
+    "buy_list": "买单列表",
+    "sell_list": "卖单列表",
+    "my_list": "我的委托单"
+  }
 }
