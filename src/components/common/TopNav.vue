@@ -54,7 +54,7 @@ export default {
   },
   data() {
     return {
-      lang: 'en',
+      lang: this.$store.getters.lang,
       robotStatus: false,
       robotStatusTxt: 'off',
       // progress: 0,
