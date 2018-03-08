@@ -54,18 +54,30 @@
       @close="onClose"
       :md-dialog-width="'50%'"
       ref="add_exchange_pair">
-      <md-select name="exchange_pair" md-menu-class="custom-option" id="exchange_pair" v-model="baseAsset" :placeholder="$t('exchange.base_asset')">
-        <md-option v-for="balance in balances" :key="`${balance.asset_code}_${balance.asset_issuer}`" :value="`${balance.asset_code}`">{{ balance.asset_code }}</md-option>
-      </md-select>
-      <md-select name="exchange_pair" md-menu-class="custom-option" id="exchange_pair" v-model="baseIssuer" :placeholder="$t('exchange.base_issuer')">
-        <md-option v-for="balance in balances" :key="`${balance.asset_code}_${balance.asset_issuer}`" :value="`${balance.asset_issuer}`">{{ `${balance.asset_issuer} ( ${balance.asset_code} )` }}</md-option>
-      </md-select>
-      <md-select name="exchange_pair" md-menu-class="custom-option" id="exchange_pair" v-model="counterAsset" :placeholder="$t('exchange.counter_asset')">
-        <md-option v-for="balance in balances" :key="`${balance.asset_code}_${balance.asset_issuer}`" :value="`${balance.asset_code}`">{{ balance.asset_code }}</md-option>
-      </md-select>
-      <md-select name="exchange_pair" md-menu-class="custom-option" id="exchange_pair" v-model="counterIssuer" :placeholder="$t('exchange.counter_issuer')">
-        <md-option v-for="balance in balances" :key="`${balance.asset_code}_${balance.asset_issuer}`" :value="`${balance.asset_issuer}`">{{ `${balance.asset_issuer} ( ${balance.asset_code} )` }}</md-option>
-      </md-select>
+      <md-input-container>
+        <label for="exchange_base_asset"></label>
+        <md-select name="exchange_base_asset" md-menu-class="custom-option" id="exchange_base_asset" v-model="baseAsset" :placeholder="$t('exchange.base_asset')">
+          <md-option v-for="balance in balances" :key="`${balance.asset_code}_${balance.asset_issuer}`" :value="`${balance.asset_code}`">{{ balance.asset_code }}</md-option>
+        </md-select>
+      </md-input-container>
+      <md-input-container>
+        <label for="exchange_base_issuer"></label>
+        <md-select name="exchange_base_issuer" md-menu-class="custom-option" id="exchange_base_issuer" v-model="baseIssuer" :placeholder="$t('exchange.base_issuer')">
+          <md-option v-for="balance in balances" :key="`${balance.asset_code}_${balance.asset_issuer}`" :value="`${balance.asset_issuer}`">{{ `${balance.asset_issuer} ( ${balance.asset_code} )` }}</md-option>
+        </md-select>
+      </md-input-container>
+      <md-input-container>
+        <label for="exchange_counter_asset"></label>
+        <md-select name="exchange_counter_asset" md-menu-class="custom-option" id="exchange_counter_asset" v-model="counterAsset" :placeholder="$t('exchange.counter_asset')">
+          <md-option v-for="balance in balances" :key="`${balance.asset_code}_${balance.asset_issuer}`" :value="`${balance.asset_code}`">{{ balance.asset_code }}</md-option>
+        </md-select>
+      </md-input-container>
+      <md-input-container>
+        <label for="exchange_counter_issuer"></label>
+        <md-select name="exchange_counter_issuer" md-menu-class="custom-option" id="exchange_counter_issuer" v-model="counterIssuer" :placeholder="$t('exchange.counter_issuer')">
+          <md-option v-for="balance in balances" :key="`${balance.asset_code}_${balance.asset_issuer}`" :value="`${balance.asset_issuer}`">{{ `${balance.asset_issuer} ( ${balance.asset_code} )` }}</md-option>
+        </md-select>
+      </md-input-container>
     </dialog-form>
 
   </md-card>
