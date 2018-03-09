@@ -57,24 +57,28 @@
       <md-input-container>
         <label for="exchange_base_asset"></label>
         <md-select name="exchange_base_asset" md-menu-class="custom-option" id="exchange_base_asset" v-model="baseAsset" :placeholder="$t('exchange.base_asset')">
+          <md-option value="XLM">XLM</md-option>
           <md-option v-for="balance in balances" :key="`${balance.asset_code}_${balance.asset_issuer}`" :value="`${balance.asset_code}`">{{ balance.asset_code }}</md-option>
         </md-select>
       </md-input-container>
       <md-input-container>
         <label for="exchange_base_issuer"></label>
         <md-select name="exchange_base_issuer" md-menu-class="custom-option" id="exchange_base_issuer" v-model="baseIssuer" :placeholder="$t('exchange.base_issuer')">
+          <md-option></md-option>
           <md-option v-for="balance in balances" :key="`${balance.asset_code}_${balance.asset_issuer}`" :value="`${balance.asset_issuer}`">{{ `${balance.asset_issuer} ( ${balance.asset_code} )` }}</md-option>
         </md-select>
       </md-input-container>
       <md-input-container>
         <label for="exchange_counter_asset"></label>
         <md-select name="exchange_counter_asset" md-menu-class="custom-option" id="exchange_counter_asset" v-model="counterAsset" :placeholder="$t('exchange.counter_asset')">
+          <md-option value="XLM">XLM</md-option>
           <md-option v-for="balance in balances" :key="`${balance.asset_code}_${balance.asset_issuer}`" :value="`${balance.asset_code}`">{{ balance.asset_code }}</md-option>
         </md-select>
       </md-input-container>
       <md-input-container>
         <label for="exchange_counter_issuer"></label>
         <md-select name="exchange_counter_issuer" md-menu-class="custom-option" id="exchange_counter_issuer" v-model="counterIssuer" :placeholder="$t('exchange.counter_issuer')">
+          <md-option></md-option>
           <md-option v-for="balance in balances" :key="`${balance.asset_code}_${balance.asset_issuer}`" :value="`${balance.asset_issuer}`">{{ `${balance.asset_issuer} ( ${balance.asset_code} )` }}</md-option>
         </md-select>
       </md-input-container>
@@ -138,6 +142,49 @@ export default {
             const baseIssuer = this.baseIssuer ? this.baseIssuer.toUpperCase() : null;
             const counterAsset = this.counterAsset ? this.counterAsset.toUpperCase() : null;
             const counterIssuer = this.counterIssuer ? this.counterIssuer.toUpperCase() : null;
+            const balances = this.balances;
+
+            if (baseAsset === counterAsset) {
+              this.$store.commit('updateSnackmsg', 'exchange.base_asset_cannot_be_the_same_as_counter_asset');
+              return;
+            }
+
+            // Check if the asset and issuer are paired
+            let baseErr = false;
+            console.log(baseAsset, baseIssuer, counterAsset, counterIssuer);
+            if (baseIssuer === null && baseAsset !== 'XLM') {
+              this.$store.commit('updateSnackmsg', 'exchange.base_asset_and_issuer_not_paired');
+              return;
+            }
+            balances.forEach((el) => {
+              if (el.asset_issuer === baseIssuer) {
+                if (el.asset_code !== baseAsset) {
+                  baseErr = true;
+                }
+              }
+            });
+            if (baseErr) {
+              this.$store.commit('updateSnackmsg', 'exchange.base_asset_and_issuer_not_paired');
+              return;
+            }
+
+            let counterErr = false;
+            if (counterIssuer === null && counterAsset !== 'XLM') {
+              this.$store.commit('updateSnackmsg', 'exchange.counter_asset_and_issuer_not_paired');
+              return;
+            }
+            balances.forEach((el) => {
+              if (el.asset_issuer === counterIssuer) {
+                if (el.asset_code !== counterAsset) {
+                  counterErr = true;
+                }
+              }
+            });
+            if (counterErr) {
+              this.$store.commit('updateSnackmsg', 'exchange.counter_asset_and_issuer_not_paired');
+              return;
+            }
+
             const pair = {
               skey: `${baseAsset}${baseIssuer}_${counterAsset}${counterIssuer}`,
               skey2: `${counterAsset}${counterIssuer}_${baseAsset}${baseIssuer}`,
