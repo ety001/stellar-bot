@@ -131,25 +131,19 @@ export default {
       switch (ref) {
         case 'add_exchange_pair':
           if (type === 'ok') {
-            // TODO: detect pair exist.
-            // const issuers = this.$store.getters.issuers;
-            // if (issuers.indexOf(this.baseIssuer.toUpperCase()) ||
-            //   issuers.indexOf(this.counterIssuer.toUpperCase())) {
-            //   this.$store.commit('updateSnackmsg', 'exchange.has_existed');
-            //   return;
-            // }
             const baseAsset = this.baseAsset ? this.baseAsset.toUpperCase() : null;
             const baseIssuer = this.baseIssuer ? this.baseIssuer.toUpperCase() : null;
             const counterAsset = this.counterAsset ? this.counterAsset.toUpperCase() : null;
             const counterIssuer = this.counterIssuer ? this.counterIssuer.toUpperCase() : null;
             const balances = this.balances;
 
+            // check if base asset is the same as counter asset
             if (baseAsset === counterAsset) {
               this.$store.commit('updateSnackmsg', 'exchange.base_asset_cannot_be_the_same_as_counter_asset');
               return;
             }
 
-            // Check if the asset and issuer are paired
+            // check if the asset and issuer are paired
             let baseErr = false;
             console.log(baseAsset, baseIssuer, counterAsset, counterIssuer);
             if (baseIssuer === null && baseAsset !== 'XLM') {
@@ -185,6 +179,7 @@ export default {
               return;
             }
 
+            // add exchange pair
             const pair = {
               skey: `${baseAsset}${baseIssuer}_${counterAsset}${counterIssuer}`,
               skey2: `${counterAsset}${counterIssuer}_${baseAsset}${baseIssuer}`,
