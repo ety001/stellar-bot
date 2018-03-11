@@ -12,7 +12,7 @@ import transEn from './i18n/en.json';
 import transZhCn from './i18n/zh-CN.json';
 import Api from './lib/Api';
 
-const VERSION = '0.0.5';
+const VERSION = '0.0.6';
 const intervalTime = 20;
 
 window.progress = 0;
@@ -26,7 +26,7 @@ window.Sconsole = (resultArrOrStr, msgType = 'debug') => {
 };
 
 // Global Func
-window.fixNumCustom = (number, fixed = 6) => Number(number).toFixed(fixed);
+window.fixNumCustom = (number, fixed = 7) => Number(number).toFixed(fixed);
 
 // init VueMaterial
 Vue.use(VueMaterial);

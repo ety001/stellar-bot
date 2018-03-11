@@ -62,6 +62,9 @@
     "title": "委托单",
     "buy_list": "买单列表",
     "sell_list": "卖单列表",
-    "my_list": "我的委托单"
+    "my_list": "我的委托单",
+    "price": "{pair} 价格",
+    "buy": "买入 {asset}",
+    "sell": "卖出 {asset}"
   }
 }

@@ -62,6 +62,9 @@
     "title": "Order",
     "buy_list": "Buy List",
     "sell_list": "Sell List",
-    "my_list": "My Order List"
+    "my_list": "My Order List",
+    "price": "{pair} Price",
+    "buy": "Buy {asset}",
+    "sell": "Sell {asset}"
   }
 }

@@ -244,6 +244,16 @@ export default new Vuex.Store({
     exchangePairs(state) {
       return state.exchangePairs;
     },
+    exchangePairsSelector(state) {
+      const res = [];
+      state.exchangePairs.forEach((pair) => {
+        res.push({
+          skey: `${pair.baseAsset}|${pair.baseIssuer}_${pair.counterAsset}|${pair.counterIssuer}`,
+          text: `[${pair.baseAsset}] ${pair.baseIssuer} / [${pair.counterAsset}] ${pair.counterIssuer}`,
+        });
+      });
+      return res;
+    },
     robotStatus(state) {
       return state.robotStatus;
     },
