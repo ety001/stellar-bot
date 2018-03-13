@@ -22,6 +22,7 @@
               <md-table-row>
                 <md-table-head>{{ $t('order_list.buy_list') }}</md-table-head>
                 <md-table-head></md-table-head>
+                <md-table-head></md-table-head>
               </md-table-row>
             </md-table-header>
             <md-table-header>
@@ -35,17 +36,17 @@
               <md-table-row v-for="(order, order_index) in orderbook.bids" :key="order_index">
                 <md-table-cell>
                   <span>
-                    {{ order.amount | fixNumCustom(4) }}
+                    {{ order.amount | fixNumCustom(7) }}
                   </span>
                 </md-table-cell>
                 <md-table-cell>
                   <span>
-                    {{ (order.amount / order.price) | fixNumCustom(4) }}
+                    {{ (order.amount / order.price) | fixNumCustom(7) }}
                   </span>
                 </md-table-cell>
                 <md-table-cell>
                   <span>
-                    {{ order.price | fixNumCustom(4) }}
+                    {{ order.price | fixNumCustom(7) }}
                   </span>
                 </md-table-cell>
               </md-table-row>
@@ -65,6 +66,7 @@
               <md-table-row>
                 <md-table-head>{{ $t('order_list.sell_list') }}</md-table-head>
                 <md-table-head></md-table-head>
+                <md-table-head></md-table-head>
               </md-table-row>
             </md-table-header>
             <md-table-header>
@@ -78,17 +80,17 @@
               <md-table-row v-for="(order, order_index) in orderbook.asks" :key="order_index">
                 <md-table-cell>
                   <span>
-                    {{ order.price | fixNumCustom(4) }}
+                    {{ order.price | fixNumCustom(7) }}
                   </span>
                 </md-table-cell>
                 <md-table-cell>
                   <span>
-                    {{ order.amount | fixNumCustom(4) }}
+                    {{ order.amount | fixNumCustom(7) }}
                   </span>
                 </md-table-cell>
                 <md-table-cell>
                   <span>
-                    {{ order.amount * order.price | fixNumCustom(4) }}
+                    {{ order.amount * order.price | fixNumCustom(7) }}
                   </span>
                 </md-table-cell>
               </md-table-row>
@@ -110,21 +112,43 @@
               <md-table-row>
                 <md-table-head>{{ $t('order_list.my_list') }}</md-table-head>
                 <md-table-head></md-table-head>
+                <md-table-head></md-table-head>
               </md-table-row>
             </md-table-header>
             <md-table-header>
               <md-table-row>
-                <md-table-head>test1</md-table-head>
-                <md-table-head>test2</md-table-head>
+                <md-table-head>{{ $t('myorder.type') }}</md-table-head>
+                <md-table-head>{{ $t('myorder.price', {pair: ` (${selectedPairBaseAsset}/${selectedPairCounterAsset})`}) }}</md-table-head>
+                <md-table-head>{{ $t('myorder.amount', {asset: ` (${selectedPairBaseAsset})`}) }}</md-table-head>
+                <md-table-head></md-table-head>
               </md-table-row>
             </md-table-header>
-            <md-table-body>
-              <md-table-row>
+            <md-table-body v-if="myOrderList">
+              <md-table-row v-for="order in myOrderList" :key="order.id">
                 <md-table-cell>
-                  <span>
-                    XLM
+                  <span v-if="order.type === 'buy'" style="color: green;">
+                    {{ $t('myorder.buy') }}
+                  </span>
+                  <span v-if="order.type === 'sell'" style="color: red;">
+                    {{ $t('myorder.sell') }}
                   </span>
                 </md-table-cell>
+                <md-table-cell>
+                  <span>{{ order.price | fixNumCustom(7) }}</span>
+                </md-table-cell>
+                <md-table-cell>
+                  <span>{{ order.amount | fixNumCustom(7) }}</span>
+                </md-table-cell>
+                <md-table-cell></md-table-cell>
+              </md-table-row>
+            </md-table-body>
+            <md-table-body v-else>
+              <md-table-row>
+                <md-table-cell>
+                  <span>No Data</span>
+                </md-table-cell>
+                <md-table-cell></md-table-cell>
+                <md-table-cell></md-table-cell>
                 <md-table-cell></md-table-cell>
               </md-table-row>
             </md-table-body>
@@ -147,6 +171,7 @@ export default {
       selectedPairCounterAsset: '',
       orderbookInterval: null,
       orderbook: null,
+      myOrderList: [],
     };
   },
   computed: {
@@ -165,6 +190,7 @@ export default {
       this.updateOrderBook(pair);
       this.orderbookInterval = setInterval(() => {
         this.updateOrderBook(pair);
+        this.updateMyOrderList(pair);
       }, 5000);
     },
   },
@@ -209,9 +235,50 @@ export default {
       }
       Api.getOrderBook(window.server, sellingAsset, buyingAsset, (res) => {
         this.orderbook = res;
-        console.log(res);
       }, (errRes) => {
         window.Sconsole(['updateOrderbook fail', errRes]);
+      });
+    },
+    updateMyOrderList(pair) {
+      let sellingAsset = {};
+      let buyingAsset = {};
+      if (pair.baseAsset === 'XLM') {
+        sellingAsset = { asset_type: 'native' };
+      } else {
+        sellingAsset = { asset_type: 'credit_alphanum4', asset_code: pair.baseAsset, asset_issuer: pair.baseIssuer };
+      }
+      if (pair.counterAsset === 'XLM') {
+        buyingAsset = { asset_type: 'native' };
+      } else {
+        buyingAsset = { asset_type: 'credit_alphanum4', asset_code: pair.counterAsset, asset_issuer: pair.counterIssuer };
+      }
+      Api.getOffers(window.server, this.$store.getters.privateKey, (res) => {
+        if (res.records.length > 0) {
+          const tmpMyOrder = [];
+          res.records.forEach((record) => {
+            if (JSON.stringify(record.buying) === JSON.stringify(sellingAsset)
+              && JSON.stringify(record.selling) === JSON.stringify(buyingAsset)) {
+              tmpMyOrder.push({
+                id: record.id,
+                type: 'buy',
+                price: 1 / record.price, // record.price = baseAsset / counterAsset
+                amount: record.price * record.amount, // record.amount = counterAsset
+              });
+            }
+            if (JSON.stringify(record.selling) === JSON.stringify(sellingAsset)
+              && JSON.stringify(record.buying) === JSON.stringify(buyingAsset)) {
+              tmpMyOrder.push({
+                id: record.id,
+                type: 'sell',
+                price: record.price, // counterAsset / baseAsset
+                amount: record.amount, // baseAsset
+              });
+            }
+          });
+          this.myOrderList = tmpMyOrder;
+        }
+      }, (errRes) => {
+        window.Sconsole(['updateMyList fail', errRes]);
       });
     },
   },

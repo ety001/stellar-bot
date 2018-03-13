@@ -66,5 +66,13 @@
     "price": "{pair} Price",
     "buy": "Buy {asset}",
     "sell": "Sell {asset}"
+  },
+  "myorder": {
+    "type": "Type",
+    "buy": "Buy",
+    "sell": "Sell",
+    "price": "Price{pair}",
+    "cancel": "Cancel",
+    "amount": "Amount{asset}"
   }
 }

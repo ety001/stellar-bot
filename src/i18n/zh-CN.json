@@ -66,5 +66,13 @@
     "price": "{pair} 价格",
     "buy": "买入 {asset}",
     "sell": "卖出 {asset}"
+  },
+  "myorder": {
+    "type": "类型",
+    "buy": "买入",
+    "sell": "卖出",
+    "price": "价格{pair}",
+    "cancel": "撤单",
+    "amount": "数量{asset}"
   }
 }
