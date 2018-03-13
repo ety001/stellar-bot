@@ -16,9 +16,6 @@
       </md-toolbar>
       <md-list>
         <md-list-item>
-          <md-switch v-model="robotStatus" id="robot_status" name="robot_status" class="md-warn">{{ $t('robot_status', {'robotStatus': $t(robotStatusTxt)}) }}</md-switch>
-        </md-list-item>
-        <md-list-item>
           <router-link to="/">{{ 'home' | translate }}</router-link>
         </md-list-item>
         <md-list-item md-expand-multiple>
@@ -54,17 +51,11 @@ export default {
   },
   data() {
     return {
-      lang: 'en',
-      robotStatus: false,
-      robotStatusTxt: 'off',
+      lang: this.$store.getters.lang,
       // progress: 0,
     };
   },
   watch: {
-    robotStatus() {
-      this.robotStatusTxt = this.robotStatus ? 'on' : 'off';
-      this.$store.commit('updateRobotStatus', this.robotStatus);
-    },
     lang(val) {
       this.$i18n.set(val);
       this.$store.commit('updateLang', val);

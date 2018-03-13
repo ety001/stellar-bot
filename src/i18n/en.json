@@ -18,6 +18,7 @@
   "lang": "Language",
   "reset": "Reset Configuration",
   "exchange_pair": "Exchange Pair",
+  "select_one": "Select One",
   "wallet": {
     "base": "Wallet",
     "config_your_private_key": "Config Your Wallet Private Key",
@@ -49,7 +50,29 @@
     "base_asset": "Base Asset (Example: XLM)",
     "base_issuer": "Base Issuer (Example: If asset is XLM, please empty this input)",
     "counter_asset": "Counter Asset (Example: CNY)",
-    "counter_issuer": "Counter Issuer (Example: GAREELUB43IRHWEASCFBLKHURCGMHE5IF6XSE7EXDLACYHGRHM43RFOX)"
+    "counter_issuer": "Counter Issuer (Example: GAREELUB43IRHWEASCFBLKHURCGMHE5IF6XSE7EXDLACYHGRHM43RFOX)",
+    "set_base_asset_first": "Please set base asset first!",
+    "base_asset_and_issuer_not_paired": "Base asset and issuer are not PAIRED!",
+    "counter_asset_and_issuer_not_paired": "Counter asset and issuer are not PAIRED!",
+    "base_asset_cannot_be_the_same_as_counter_asset": "Base asset cannot be the same as counter asset!"
   },
-  "save_success": "Save Success!"
+  "save_success": "Save Success!",
+  "manage_offers": "Manage Offers",
+  "order_list": {
+    "title": "Order",
+    "buy_list": "Buy List",
+    "sell_list": "Sell List",
+    "my_list": "My Order List",
+    "price": "{pair} Price",
+    "buy": "Buy {asset}",
+    "sell": "Sell {asset}"
+  },
+  "myorder": {
+    "type": "Type",
+    "buy": "Buy",
+    "sell": "Sell",
+    "price": "Price{pair}",
+    "cancel": "Cancel",
+    "amount": "Amount{asset}"
+  }
 }
