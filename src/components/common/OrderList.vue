@@ -188,6 +188,7 @@ export default {
       window.Sconsole(['selectedPair', pair]);
       clearInterval(this.orderbookInterval);
       this.updateOrderBook(pair);
+      this.updateMyOrderList(pair);
       this.orderbookInterval = setInterval(() => {
         this.updateOrderBook(pair);
         this.updateMyOrderList(pair);
