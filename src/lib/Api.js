@@ -155,7 +155,7 @@ export default {
             });
           return null;
         }).then(function(e) {
-          window.Sconsole([e]);
+          window.Sconsole(['makeOrderResult', e]);
           return null;
         })
         .catch(function(e) {

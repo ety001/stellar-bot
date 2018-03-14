@@ -210,7 +210,7 @@ export default {
                 this.assetIssuer = '';
               },
               (errRes) => {
-                window.Sconsole(['addTrustline fail', errRes]);
+                window.Sconsole(['addTrustline fail', errRes], 'msg');
                 this.$store.commit('updateIsloading', false);
                 this.$store.commit('updateSnackmsg', 'wallet.add_trustline_fail');
                 this.assetCode = '';

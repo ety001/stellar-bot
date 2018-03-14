@@ -236,7 +236,7 @@ export default {
       Api.getOrderBook(window.server, sellingAsset, buyingAsset, (res) => {
         this.orderbook = res;
       }, (errRes) => {
-        window.Sconsole(['updateOrderbook fail', errRes]);
+        window.Sconsole(['updateOrderbook fail', errRes], 'msg');
       });
     },
     updateMyOrderList(pair) {
@@ -278,7 +278,7 @@ export default {
           this.myOrderList = tmpMyOrder;
         }
       }, (errRes) => {
-        window.Sconsole(['updateMyList fail', errRes]);
+        window.Sconsole(['updateMyList fail', errRes], 'msg');
       });
     },
   },

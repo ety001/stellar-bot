@@ -85,7 +85,7 @@ new Vue({
           this.updateOrderbookPrice();
           this.updateOffers();
         }, (errRes) => {
-          window.Sconsole(['update wallet info fail', errRes]);
+          window.Sconsole(['update wallet info fail', errRes], 'msg');
         });
       }
     },
@@ -116,7 +116,7 @@ new Vue({
             }
             this.$store.commit('updateExchangePrices', exchangePrice);
           }, (errRes) => {
-            window.Sconsole(['updateOrderbookPrice fail', errRes]);
+            window.Sconsole(['updateOrderbookPrice fail', errRes], 'msg');
           });
         });
       }
@@ -128,7 +128,7 @@ new Vue({
         this.$store.commit('updateOffers', res.records);
         this.robot();
       }, (errRes) => {
-        window.Sconsole(['updateOffers fail', errRes]);
+        window.Sconsole(['updateOffers fail', errRes], 'msg');
       });
     },
     robot() {
@@ -198,7 +198,7 @@ new Vue({
                   console.log(err);
                 });
             }, (err) => {
-              window.Sconsole(['create_buy_order', err]);
+              window.Sconsole(['create_buy_order', err], 'msg');
             });
           } else {
             // charge current order
@@ -245,7 +245,7 @@ new Vue({
                   console.log(err);
                 });
             }, (err) => {
-              window.Sconsole(['create_buy_order', err]);
+              window.Sconsole(['create_buy_order', err], 'msg');
             });
           } else {
             // charge current order
