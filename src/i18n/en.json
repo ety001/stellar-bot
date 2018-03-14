@@ -73,6 +73,7 @@
     "sell": "Sell",
     "price": "Price{pair}",
     "cancel": "Cancel",
-    "amount": "Amount{asset}"
+    "amount": "Amount{asset}",
+    "cancel_msg": "Order canceling, please wait ...."
   }
 }

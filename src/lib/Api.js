@@ -138,7 +138,6 @@ export default {
             price : Number(price).toFixed(7) // The exchange rate ratio (selling / buying)
           })
           let tx = new StellarSdk.TransactionBuilder(account).addOperation(op).build();
-          // console.log(tx);
           tx.sign(keyPair);
           // lock
           store.commit('updateOrderLock', {skey, lock: true});
@@ -166,6 +165,39 @@ export default {
     } else {
       window.Sconsole(['lock', lockStatus]);
     }
+  },
+  cancelOrder: function(server, privateKey, order, cb, cbErr) {
+    const keyPair = StellarSdk.Keypair.fromSecret(privateKey);
+    let buying, selling;
+    if (order.buying.asset_type === 'native') {
+      buying = StellarSdk.Asset.native();
+    } else {
+      buying = new StellarSdk.Asset(order.buying.asset_code, order.buying.asset_issuer);
+    }
+    if (order.selling.asset_type === 'native') {
+      selling = StellarSdk.Asset.native();
+    } else {
+      selling = new StellarSdk.Asset(order.selling.asset_code, order.selling.asset_issuer);
+    }
+    server.loadAccount(keyPair.publicKey())
+      .then((account) => {
+        const op = StellarSdk.Operation.manageOffer({
+          selling: selling,
+          buying: buying,
+          amount: '0',
+          price : Number(order.price).toFixed(7),
+          offerId: order.id,
+        });
+        const tx = new StellarSdk.TransactionBuilder(account).addOperation(op).build();
+        tx.sign(keyPair);
+        return server.submitTransaction(tx);
+      }).then(function(transactionResult) {
+        window.Sconsole(['cancel transaction result', transactionResult]);
+        cb(transactionResult);
+        return;
+      }).catch(function(e) {
+        cbErr(e);
+      });
   },
   findOrder: function (offers, pair, cb) {
     const buyOrders = offers.filter((detail) => {
@@ -298,7 +330,6 @@ export default {
       buying = {asset_code: pair.counterAsset, asset_issuer: pair.counterIssuer};
     }
     this.getOrderBook(server, selling, buying, (res) => {
-      console.log(res, selling, buying);
       const bids = res.bids; // buy 'buying' from these orders
       const asks = res.asks; // sell 'buying' from these orders
       if (t === 'base') {

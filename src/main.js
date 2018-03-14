@@ -81,9 +81,10 @@ new Vue({
             });
           }
           this.$store.commit('updateAllIssuers', allIssuers);
-          // other Actions
+          // other actions must be after updating balance
           this.updateOrderbookPrice();
           this.updateOffers();
+          this.robot();
         }, (errRes) => {
           window.Sconsole(['update wallet info fail', errRes], 'msg');
         });
@@ -126,7 +127,6 @@ new Vue({
       Api.getOffers(this.server, this.$store.getters.privateKey, (res) => {
         window.Sconsole(['updateOffers success', res]);
         this.$store.commit('updateOffers', res.records);
-        this.robot();
       }, (errRes) => {
         window.Sconsole(['updateOffers fail', errRes], 'msg');
       });

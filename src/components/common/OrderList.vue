@@ -139,7 +139,9 @@
                 <md-table-cell>
                   <span>{{ order.amount | fixNumCustom(7) }}</span>
                 </md-table-cell>
-                <md-table-cell></md-table-cell>
+                <md-table-cell>
+                  <a href="javascript:void(0);" v-on:click="cancel(order.id)">{{ $t('myorder.cancel') }}</a>
+                </md-table-cell>
               </md-table-row>
             </md-table-body>
             <md-table-body v-else>
@@ -172,6 +174,7 @@ export default {
       orderbookInterval: null,
       orderbook: null,
       myOrderList: [],
+      pairOrderObj: {},
     };
   },
   computed: {
@@ -256,6 +259,7 @@ export default {
       Api.getOffers(window.server, this.$store.getters.privateKey, (res) => {
         if (res.records.length > 0) {
           const tmpMyOrder = [];
+          const tmpPairOrder = {};
           res.records.forEach((record) => {
             if (JSON.stringify(record.buying) === JSON.stringify(sellingAsset)
               && JSON.stringify(record.selling) === JSON.stringify(buyingAsset)) {
@@ -265,6 +269,7 @@ export default {
                 price: 1 / record.price, // record.price = baseAsset / counterAsset
                 amount: record.price * record.amount, // record.amount = counterAsset
               });
+              tmpPairOrder[record.id] = record;
             }
             if (JSON.stringify(record.selling) === JSON.stringify(sellingAsset)
               && JSON.stringify(record.buying) === JSON.stringify(buyingAsset)) {
@@ -274,13 +279,29 @@ export default {
                 price: record.price, // counterAsset / baseAsset
                 amount: record.amount, // baseAsset
               });
+              tmpPairOrder[record.id] = record;
             }
           });
           this.myOrderList = tmpMyOrder;
+          this.pairOrderObj = tmpPairOrder;
         }
       }, (errRes) => {
         window.Sconsole(['updateMyList fail', errRes], 'msg');
       });
+    },
+    cancel(orderId) {
+      if (this.pairOrderObj[orderId]) {
+        this.$store.commit('updateSnackmsg', this.$i18n.translate('myorder.cancel_msg'));
+        Api.cancelOrder(
+          window.server,
+          this.$store.getters.privateKey,
+          this.pairOrderObj[orderId],
+          (transResult) => {
+            window.Sconsole(['cancel order result', transResult]);
+          }, (errRes) => {
+            window.Sconsole(['cancel order err', errRes, errRes.message], 'msg');
+          });
+      }
     },
   },
 };
