@@ -63,8 +63,10 @@ export default new Vuex.Store({
       // init maxes
       balances.forEach((detail) => {
         const key = `${detail.asset_code}_${detail.asset_issuer}`;
+        // find if current balance exists
         const tmp = state.maxes.filter(val => val.skey === key);
         if (tmp.length === 0) {
+          // if not exist, add it.
           state.maxes.push({ skey: key, max: 0 });
         }
       });

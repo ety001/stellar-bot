@@ -137,27 +137,17 @@ export default {
             amount: Number(amount).toFixed(7), // The total amount you're selling
             price : Number(price).toFixed(7) // The exchange rate ratio (selling / buying)
           })
-          let tx = new StellarSdk.TransactionBuilder(account).addOperation(op).build();
+          const tx = new StellarSdk.TransactionBuilder(account).addOperation(op).build();
           tx.sign(keyPair);
           // lock
           store.commit('updateOrderLock', {skey, lock: true});
-          server.submitTransaction(tx)
-            .then(function(transactionResult) {
-              window.Sconsole(['transactionResult', transactionResult]);
-              // unlock
-              store.commit('updateOrderLock', {skey, lock: false});
-              return null;
-            }).catch((err) => {
-              // unlock
-              store.commit('updateOrderLock', {skey, lock: false});
-              cbErr(err);
-            });
-          return null;
-        }).then(function(e) {
-          window.Sconsole(['makeOrderResult', e]);
-          return null;
-        })
-        .catch(function(e) {
+          return server.submitTransaction(tx);
+        }).then(function(transactionResult) {
+          window.Sconsole(['transactionResult', transactionResult]);
+          // unlock
+          store.commit('updateOrderLock', {skey, lock: false});
+          return;
+        }).catch(function(e) {
           // unlock
           store.commit('updateOrderLock', {skey, lock: false});
           cbErr(e);
@@ -245,7 +235,7 @@ export default {
       const skey = `${pair.baseAsset}_${pair.baseIssuer}`;
       const tmp = store.getters.maxes.filter(detail => detail.skey === skey);
       if (tmp.length > 0) {
-        return tmp[0].max;
+        return Number(tmp[0].max);
       } else {
         return 0;
       }
@@ -258,7 +248,7 @@ export default {
       const skey = `${pair.counterAsset}_${pair.counterIssuer}`;
       const tmp = store.getters.maxes.filter(detail => detail.skey === skey);
       if (tmp.length > 0) {
-        return tmp[0].max;
+        return Number(tmp[0].max);
       } else {
         return 0;
       }
@@ -301,7 +291,7 @@ export default {
         const skey = `${pair.baseAsset}_${pair.baseIssuer}`;
         const res = store.getters.exchangeVals.filter(detail => detail.skey === skey);
         if (res.length > 0) {
-          return res[0].exchangeVal;
+          return Number(res[0].exchangeVal);
         } else {
           return 0;
         }
@@ -313,7 +303,7 @@ export default {
         const skey = `${pair.counterAsset}_${pair.counterIssuer}`;
         const res = store.getters.exchangeVals.filter(detail => detail.skey === skey);
         if (res.length > 0) {
-          return res[0].exchangeVal;
+          return Number(res[0].exchangeVal);
         } else {
           return 0;
         }

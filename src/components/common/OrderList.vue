@@ -167,6 +167,7 @@ import Api from '@/lib/Api';
 export default {
   data() {
     return {
+      pair: null,
       selectedPair: '',
       selectedPairStr: '',
       selectedPairBaseAsset: '',
@@ -185,6 +186,7 @@ export default {
   watch: {
     selectedPair(newPair) {
       const pair = this.parseExchangeKey(newPair);
+      this.pair = pair;
       this.selectedPairStr = `${pair.baseAsset}/${pair.counterAsset}`;
       this.selectedPairBaseAsset = pair.baseAsset;
       this.selectedPairCounterAsset = pair.counterAsset;
@@ -298,6 +300,7 @@ export default {
           this.pairOrderObj[orderId],
           (transResult) => {
             window.Sconsole(['cancel order result', transResult]);
+            this.updateMyOrderList(this.pair);
           }, (errRes) => {
             window.Sconsole(['cancel order err', errRes, errRes.message], 'msg');
           });
