@@ -178,41 +178,41 @@ new Vue({
                   window.Sconsole(['cancel all buy order err', errRes, errRes.message], 'msg');
                 });
               });
-              return;
-            }
-            // make order
-            Api.getCurrentPrice(this.server, pair, 'base', (buyPrice) => {
-              const orderPrice = (1 / buyPrice) * (1 - (pair.baseRate / 100));
-              let amount;
-              let price;
-              if (pair.baseAsset === 'XLM') {
-                amount = pair.baseValue * orderPrice;
-              } else {
-                price = Api.getExchangePrice(this.$store, pair, 'base');
-                if (price[0]) {
-                  amount = pair.baseValue * (1 / price[0].bidPrice);
+            } else {
+              // make order
+              Api.getCurrentPrice(this.server, pair, 'base', (buyPrice) => {
+                const orderPrice = (1 / buyPrice) * (1 - (pair.baseRate / 100));
+                let amount;
+                let price;
+                if (pair.baseAsset === 'XLM') {
+                  amount = pair.baseValue * orderPrice;
                 } else {
-                  amount = 0;
+                  price = Api.getExchangePrice(this.$store, pair, 'base');
+                  if (price[0]) {
+                    amount = pair.baseValue * (1 / price[0].bidPrice);
+                  } else {
+                    amount = 0;
+                  }
                 }
-              }
-              window.Sconsole(['make buy order', orderPrice, pair, amount]);
-              Api.makeOrder(
-                'buy',
-                this.server,
-                this.$store,
-                privateKey,
-                baseInfo,
-                counterInfo,
-                amount, // selling amount
-                (1 / orderPrice), // selling / buying
-                (res) => {
-                  window.Sconsole(['buy_order', res], 'msg');
-                }, (err) => {
-                  window.Sconsole(['buy_order_err', err], 'msg');
-                });
-            }, (err) => {
-              window.Sconsole(['create_buy_order', err], 'msg');
-            });
+                window.Sconsole(['make buy order', orderPrice, pair, amount]);
+                Api.makeOrder(
+                  'buy',
+                  this.server,
+                  this.$store,
+                  privateKey,
+                  baseInfo,
+                  counterInfo,
+                  amount, // selling amount
+                  (1 / orderPrice), // selling / buying
+                  (res) => {
+                    window.Sconsole(['buy_order', res], 'msg');
+                  }, (err) => {
+                    window.Sconsole(['buy_order_err', err], 'msg');
+                  });
+              }, (err) => {
+                window.Sconsole(['create_buy_order', err], 'msg');
+              });
+            }
           } else {
             // make sure there is only one buy order
             let tmp;
@@ -261,41 +261,41 @@ new Vue({
                   window.Sconsole(['cancel all sell order err', errRes, errRes.message], 'msg');
                 });
               });
-              return;
-            }
-            // make order
-            Api.getCurrentPrice(this.server, pair, 'counter', (sellPrice) => {
-              const orderPrice = sellPrice * (1 + (pair.baseRate / 100));
-              let amount;
-              let price;
-              if (pair.counterAsset === 'XLM') {
-                amount = pair.counterValue * orderPrice;
-              } else {
-                price = Api.getExchangePrice(this.$store, pair, 'counter');
-                if (price[0]) {
-                  amount = pair.counterValue;
+            } else {
+              // make order
+              Api.getCurrentPrice(this.server, pair, 'counter', (sellPrice) => {
+                const orderPrice = sellPrice * (1 + (pair.baseRate / 100));
+                let amount;
+                let price;
+                if (pair.counterAsset === 'XLM') {
+                  amount = pair.counterValue * orderPrice;
                 } else {
-                  amount = 0;
+                  price = Api.getExchangePrice(this.$store, pair, 'counter');
+                  if (price[0]) {
+                    amount = pair.counterValue;
+                  } else {
+                    amount = 0;
+                  }
                 }
-              }
-              window.Sconsole(['make sell order', orderPrice, pair, amount, price]);
-              Api.makeOrder(
-                'sell',
-                this.server,
-                this.$store,
-                privateKey,
-                counterInfo,
-                baseInfo,
-                amount, // selling amount
-                orderPrice, // selling / buying
-                (res) => {
-                  window.Sconsole(['sell_order', res], 'msg');
-                }, (err) => {
-                  window.Sconsole(['sell_order_err', err], 'msg');
-                });
-            }, (err) => {
-              window.Sconsole(['create_buy_order', err], 'msg');
-            });
+                window.Sconsole(['make sell order', orderPrice, pair, amount, price]);
+                Api.makeOrder(
+                  'sell',
+                  this.server,
+                  this.$store,
+                  privateKey,
+                  counterInfo,
+                  baseInfo,
+                  amount, // selling amount
+                  orderPrice, // selling / buying
+                  (res) => {
+                    window.Sconsole(['sell_order', res], 'msg');
+                  }, (err) => {
+                    window.Sconsole(['sell_order_err', err], 'msg');
+                  });
+              }, (err) => {
+                window.Sconsole(['create_buy_order', err], 'msg');
+              });
+            }
           } else {
             // make sure there is only one sell order
             let tmp;
