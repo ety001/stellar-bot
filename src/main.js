@@ -12,8 +12,10 @@ import transEn from './i18n/en.json';
 import transZhCn from './i18n/zh-CN.json';
 import Api from './lib/Api';
 
-const VERSION = '0.0.6';
-const intervalTime = 20;
+const VERSION = '0.0.7';
+const intervalTime = 5;
+const robotIntervalTime = 20;
+const priceSensitivity = 4;
 
 window.progress = 0;
 // Debug
@@ -56,6 +58,7 @@ new Vue({
     serverTestUrl: 'https://horizon-testnet.stellar.org',
     serverUrl: 'https://horizon.stellar.org',
     server: null,
+    robotInterval: null,
   },
   router,
   store,
@@ -80,12 +83,14 @@ new Vue({
               allIssuers.push(val.asset_issuer);
             });
           }
+          // update all issuers
           this.$store.commit('updateAllIssuers', allIssuers);
-          // other Actions
+          // other actions must be after updating balance
           this.updateOrderbookPrice();
           this.updateOffers();
+          // this.robot();
         }, (errRes) => {
-          window.Sconsole(['update wallet info fail', errRes]);
+          window.Sconsole(['update wallet info fail', errRes], 'msg');
         });
       }
     },
@@ -93,30 +98,31 @@ new Vue({
       window.Sconsole(['update orderbook and price']);
       // get balances from vuex store
       const balances = this.$store.getters.balances;
-      if (balances.length > 1) {
+      if (balances.length >= 1) {
         balances.forEach((detail) => {
           const sellingAsset = { asset_code: detail.asset_code, asset_issuer: detail.asset_issuer };
           const buyingAsset = { asset_code: 'XLM' };
           Api.getOrderBook(this.server, sellingAsset, buyingAsset, (res) => {
             const skey = `${detail.asset_code}_${detail.asset_issuer}`;
-            // this.$store.commit('updateOrderBook', { skey, orderBook: res });
             const bids = res.bids; // buy xlm from these orders
             const asks = res.asks; // sell xlm from these orders
+            // update price for exchanging between ONE ASSET and XLM
             const exchangePrice = {
               skey,
-              bidPrice: 0,
-              askPrice: 0,
+              bidPrice: 0, // buy price
+              askPrice: 0, // sell price
             };
             if (bids[0]) {
               exchangePrice.bidPrice = bids[0].price;
+              // ONE ASSET 's value(XLM), sell XLM and get ONE ASSET
+              this.$store.commit('updateExchangeVals', { skey, exchangeVal: window.fixNumCustom(detail.balance * bids[0].price) });
             }
             if (asks[0]) {
-              this.$store.commit('updateExchangeVals', { skey, exchangeVal: window.fixNumCustom(detail.balance * asks[0].price) });
               exchangePrice.askPrice = asks[0].price;
             }
             this.$store.commit('updateExchangePrices', exchangePrice);
           }, (errRes) => {
-            window.Sconsole(['updateOrderbookPrice fail', errRes]);
+            window.Sconsole(['updateOrderbookPrice fail', errRes], 'msg');
           });
         });
       }
@@ -126,9 +132,8 @@ new Vue({
       Api.getOffers(this.server, this.$store.getters.privateKey, (res) => {
         window.Sconsole(['updateOffers success', res]);
         this.$store.commit('updateOffers', res.records);
-        this.robot();
       }, (errRes) => {
-        window.Sconsole(['updateOffers fail', errRes]);
+        window.Sconsole(['updateOffers fail', errRes], 'msg');
       });
     },
     robot() {
@@ -155,16 +160,24 @@ new Vue({
         const counterAssetMax = Api.getCounterAssetMax(this.$store, pair);
         const baseExchangeVal = Api.getExchangeVal(this.$store, pair, 'base');
         const counterExchangeVal = Api.getExchangeVal(this.$store, pair, 'counter');
-        window.Sconsole(['pair:', privateKey, pair, baseInfo, counterInfo, baseAssetMax, counterAssetMax]);
+        window.Sconsole(['pair:', pair, baseInfo, counterInfo, baseAssetMax, counterAssetMax]);
         // To find whether this pair has orders
         Api.findOrder(this.$store.getters.offers, pair, (orders) => {
           window.Sconsole(['findOrdersResult:', orders]);
           // buyOrder
           if (orders.buyOrders.length === 0) {
-            window.Sconsole([`${pair.baseAsset} has no buy order`]);
+            window.Sconsole([`${pair.baseAsset}/${pair.counterAsset} has no buy order`]);
             // max limit
-            if (baseExchangeVal > baseAssetMax) {
-              window.Sconsole([`${pair.baseAsset} max limit`]);
+            if (baseExchangeVal - baseAssetMax > 0) {
+              window.Sconsole([`${pair.baseAsset} max limit`, baseExchangeVal, baseAssetMax]);
+              // cancel all buy order
+              orders.buyOrders.forEach((order) => {
+                Api.cancelOrder(this.server, privateKey, order, (transResult) => {
+                  window.Sconsole(['cancel all buy order result', transResult]);
+                }, (errRes) => {
+                  window.Sconsole(['cancel all buy order err', errRes, errRes.message], 'msg');
+                });
+              });
               return;
             }
             // make order
@@ -182,7 +195,7 @@ new Vue({
                   amount = 0;
                 }
               }
-              window.Sconsole([orderPrice, pair, amount]);
+              window.Sconsole(['make buy order', orderPrice, pair, amount]);
               Api.makeOrder(
                 'buy',
                 this.server,
@@ -193,25 +206,61 @@ new Vue({
                 amount, // selling amount
                 (1 / orderPrice), // selling / buying
                 (res) => {
-                  console.log('buy_order', res);
+                  window.Sconsole(['buy_order', res], 'msg');
                 }, (err) => {
-                  console.log(err);
+                  window.Sconsole(['buy_order_err', err], 'msg');
                 });
             }, (err) => {
-              window.Sconsole(['create_buy_order', err]);
+              window.Sconsole(['create_buy_order', err], 'msg');
             });
           } else {
-            // charge current order
-            // TODO: cancel order
-            window.Sconsole([`${pair.baseAsset} has buy orders`, orders.buyOrders]);
+            // make sure there is only one buy order
+            let tmp;
+            while (orders.buyOrders.length > 1) {
+              tmp = orders.buyOrders.shift();
+              Api.cancelOrder(this.server, privateKey, tmp, (transResult) => {
+                window.Sconsole(['cancel buy order result', transResult]);
+              }, (errRes) => {
+                window.Sconsole(['cancel buy order err', errRes, errRes.message], 'msg');
+              });
+            }
+            // check if the current order price is fitting
+            Api.getCurrentPrice(this.server, pair, 'base', (buyPrice) => {
+              // current order
+              const currentOrder = orders.buyOrders[0];
+              // new price
+              const orderPrice = (1 / buyPrice) * (1 - (pair.baseRate / 100));
+              if (
+                Math.round(orderPrice, priceSensitivity)
+                - Math.round((1 / currentOrder.price), priceSensitivity)
+                > 0) {
+                // cancel current order
+                Api.cancelOrder(this.server, privateKey, currentOrder, (transResult) => {
+                  window.Sconsole(['cancel buy order result', transResult]);
+                }, (errRes) => {
+                  window.Sconsole(['cancel buy order err', errRes, errRes.message], 'msg');
+                });
+              }
+            }, (err) => {
+              window.Sconsole(['cancel current order| get current price', err], 'msg');
+            });
+            window.Sconsole([`${pair.baseAsset} cancel orders`, orders.buyOrders]);
           }
           // sellOrder
           if (orders.sellOrders.length === 0) {
             // make order
-            window.Sconsole([`${pair.counterAsset} has no sell order`]);
+            window.Sconsole([`${pair.baseAsset}/${pair.counterAsset} has no sell order`]);
             // max limit
-            if (counterExchangeVal > counterAssetMax) {
-              window.Sconsole([`${pair.counterAsset} max limit`]);
+            if (counterExchangeVal - counterAssetMax > 0) {
+              window.Sconsole([`${pair.counterAsset} max limit`, counterExchangeVal, counterAssetMax]);
+              // cancel all sell order
+              orders.sellOrders.forEach((order) => {
+                Api.cancelOrder(this.server, privateKey, order, (transResult) => {
+                  window.Sconsole(['cancel all sell order result', transResult]);
+                }, (errRes) => {
+                  window.Sconsole(['cancel all sell order err', errRes, errRes.message], 'msg');
+                });
+              });
               return;
             }
             // make order
@@ -229,7 +278,7 @@ new Vue({
                   amount = 0;
                 }
               }
-              window.Sconsole([orderPrice, pair, amount, price]);
+              window.Sconsole(['make sell order', orderPrice, pair, amount, price]);
               Api.makeOrder(
                 'sell',
                 this.server,
@@ -240,16 +289,45 @@ new Vue({
                 amount, // selling amount
                 orderPrice, // selling / buying
                 (res) => {
-                  console.log('buy_order', res);
+                  window.Sconsole(['sell_order', res], 'msg');
                 }, (err) => {
-                  console.log(err);
+                  window.Sconsole(['sell_order_err', err], 'msg');
                 });
             }, (err) => {
-              window.Sconsole(['create_buy_order', err]);
+              window.Sconsole(['create_buy_order', err], 'msg');
             });
           } else {
-            // charge current order
-            window.Sconsole([`${pair.baseAsset} has sell orders`, orders.buyOrders]);
+            // make sure there is only one sell order
+            let tmp;
+            while (orders.sellOrders.length > 1) {
+              tmp = orders.sellOrders.shift();
+              Api.cancelOrder(this.server, privateKey, tmp, (transResult) => {
+                window.Sconsole(['cancel buy order result', transResult]);
+              }, (errRes) => {
+                window.Sconsole(['cancel buy order err', errRes, errRes.message], 'msg');
+              });
+            }
+            // check if the current order price is fitting
+            Api.getCurrentPrice(this.server, pair, 'counter', (sellPrice) => {
+              // current order
+              const currentOrder = orders.sellOrders[0];
+              // new price
+              const orderPrice = sellPrice * (1 + (pair.baseRate / 100));
+              if (
+                Math.round(orderPrice, priceSensitivity)
+                - Math.round(currentOrder.price, priceSensitivity)
+                < 0) {
+                // cancel current order
+                Api.cancelOrder(this.server, privateKey, currentOrder, (transResult) => {
+                  window.Sconsole(['cancel sell order result', transResult]);
+                }, (errRes) => {
+                  window.Sconsole(['cancel sell order err', errRes, errRes.message], 'msg');
+                });
+              }
+            }, (err) => {
+              window.Sconsole(['cancel current order| get current price', err], 'msg');
+            });
+            window.Sconsole([`${pair.baseAsset} cancel orders`, orders.sellOrders]);
           }
         });
       });
@@ -268,6 +346,9 @@ new Vue({
     this.interval = setInterval(() => {
       this.intervalFunc();
     }, intervalTime * 1000);
+    this.robotInterval = setInterval(() => {
+      this.robot();
+    }, robotIntervalTime * 1000);
     this.$store.commit('intervalTime', intervalTime);
   },
 });

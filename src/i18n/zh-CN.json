@@ -73,6 +73,7 @@
     "sell": "卖出",
     "price": "价格{pair}",
     "cancel": "撤单",
-    "amount": "数量{asset}"
+    "amount": "数量{asset}",
+    "cancel_msg": "订单取消中, 请等待生效..."
   }
 }

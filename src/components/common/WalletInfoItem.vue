@@ -67,7 +67,7 @@ export default {
             this.$store.commit('updateSnackmsg', 'wallet.remove_trustline_succ');
           },
           (errRes) => {
-            window.Sconsole(['removeTrustline fail', errRes]);
+            window.Sconsole(['removeTrustline fail', errRes], 'msg');
             this.$store.commit('updateIsloading', false);
             this.$store.commit('updateSnackmsg', 'wallet.remove_trustline_fail');
           },
