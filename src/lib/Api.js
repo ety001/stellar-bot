@@ -43,7 +43,7 @@ export default {
           new StellarSdk.Asset(buying.asset_code, buying.asset_issuer);
     server.orderbook(sellingAsset, buyingAsset)
       .call()
-      .then(function(resp) { cb(resp); })
+      .then(function(resp) { cb(resp); return; })
       .catch(function(err) { cbErr(err); });
   },
   addTrustline: function (server, privateKey, code, issuer, cb, cbErr) {
@@ -63,6 +63,7 @@ export default {
         server.submitTransaction(transaction)
             .then(function (transactionResult) {
                 cb(transactionResult);
+                return;
             })
             .catch(function (err) {
                 cbErr(err);
@@ -89,6 +90,7 @@ export default {
         server.submitTransaction(transaction)
             .then(function (transactionResult) {
                 cb(transactionResult);
+                return;
             })
             .catch(function (err) {
                 cbErr(err);
@@ -105,6 +107,7 @@ export default {
       .call()
       .then((offerResult) => {
         cb(offerResult);
+        return;
       });
     } catch (err) {
       cbErr(err);
