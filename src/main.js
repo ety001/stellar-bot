@@ -12,7 +12,7 @@ import transEn from './i18n/en.json';
 import transZhCn from './i18n/zh-CN.json';
 import Api from './lib/Api';
 
-const VERSION = '0.0.8';
+const VERSION = '0.0.8-1';
 const intervalTime = 5;
 // const robotIntervalTime = 20;
 const priceSensitivity = 4;
@@ -196,7 +196,7 @@ new Vue({
                 window.Sconsole([`${pair.baseAsset}/${pair.counterAsset} has no buying-base-asset order`]);
                 // asset MAX limit
                 if (baseAssetVal - baseAssetMax > 0) {
-                  window.Sconsole([`${pair.baseAsset} is top to MAX limit.`, baseAssetVal, baseAssetMax]);
+                  window.Sconsole([`${pair.baseAsset} is top to MAX limit.`, baseAssetVal, baseAssetMax], 'msg');
                   // cancel all bids order
                   orders.bidOrders.forEach((order) => {
                     Api.cancelOrder(this.server, account, privateKey, order, (transResult) => {
@@ -299,7 +299,7 @@ new Vue({
                         privateKey,
                         currentOrder,
                         (transResult) => {
-                          window.Sconsole(['cancel buy base order result', transResult]);
+                          window.Sconsole(['cancel buy base order result', transResult], 'msg');
                         }, (errRes) => {
                           window.Sconsole(['cancel buy base order err', errRes, errRes.message], 'msg');
                         });
@@ -316,7 +316,10 @@ new Vue({
                 window.Sconsole([`${pair.baseAsset}/${pair.counterAsset} has no selling-base-asset`]);
                 // asset MAX limit
                 if (counterAssetVal - counterAssetMax > 0) {
-                  window.Sconsole([`${pair.counterAsset} is top to Max limit`, counterAssetVal, counterAssetMax]);
+                  window.Sconsole([
+                    `${pair.counterAsset} is top to Max limit`,
+                    counterAssetVal,
+                    counterAssetMax], 'msg');
                   // cancel all sell order
                   orders.askOrders.forEach((order) => {
                     Api.cancelOrder(this.server, account, privateKey, order, (transResult) => {
