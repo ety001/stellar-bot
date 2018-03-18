@@ -205,26 +205,31 @@ export default {
             this.$store.commit('updateIsloading', true);
             const assetCode = this.assetCode ? this.assetCode.toUpperCase() : null;
             const assetIssuer = this.assetIssuer ? this.assetIssuer.toUpperCase() : null;
-            Api.addTrustline(
-              window.server,
-              this.$store.getters.privateKey,
-              assetCode,
-              assetIssuer,
-              (res) => {
-                window.Sconsole(['addTrustline succ', res]);
-                this.$store.commit('updateIsloading', false);
-                this.$store.commit('updateSnackmsg', 'wallet.add_trustline_succ');
-                this.assetCode = '';
-                this.assetIssuer = '';
-              },
-              (errRes) => {
-                window.Sconsole(['addTrustline fail', errRes], 'msg');
-                this.$store.commit('updateIsloading', false);
-                this.$store.commit('updateSnackmsg', 'wallet.add_trustline_fail');
-                this.assetCode = '';
-                this.assetIssuer = '';
-              },
-            );
+            try {
+              Api.addTrustline(
+                window.server,
+                this.$store.getters.privateKey,
+                assetCode,
+                assetIssuer,
+                (res) => {
+                  window.Sconsole(['addTrustline succ', res]);
+                  this.$store.commit('updateIsloading', false);
+                  this.$store.commit('updateSnackmsg', 'wallet.add_trustline_succ');
+                  this.assetCode = '';
+                  this.assetIssuer = '';
+                },
+                (errRes) => {
+                  window.Sconsole(['addTrustline fail', errRes], 'msg');
+                  this.$store.commit('updateIsloading', false);
+                  this.$store.commit('updateSnackmsg', 'wallet.add_trustline_fail');
+                  this.assetCode = '';
+                  this.assetIssuer = '';
+                },
+              );
+            } catch (e) {
+              this.$store.commit('updateIsloading', false);
+              window.Sconsole(['add trustline failed', e], 'msg');
+            }
           } else {
             // console
             this.assetCode = '';
