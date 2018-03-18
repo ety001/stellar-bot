@@ -43,7 +43,7 @@
     "max": "最大量",
     "params": "参数",
     "counter": "对手",
-    "calculated_in_ripplefox_cny_price": "你可以持有的数量上限 (以RippleFox的CNY价格计算)",
+    "calculated_in_xlm": "你可以持有的数量上限 (以 某个asset/XLM 价格计算)",
     "buy_rate": "买入比(%)",
     "sell_rate": "卖出比(%)",
     "value": "价值",

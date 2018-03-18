@@ -239,11 +239,12 @@ export default {
       } else {
         buyingAsset = { asset_code: pair.counterAsset, asset_issuer: pair.counterIssuer };
       }
-      Api.getOrderBook(window.server, sellingAsset, buyingAsset, (res) => {
-        this.orderbook = res;
-      }, (errRes) => {
-        window.Sconsole(['updateOrderbook fail', errRes], 'msg');
-      });
+      Api.getOrderBook(window.server, sellingAsset, buyingAsset)
+        .then((res) => {
+          this.orderbook = res;
+          return null;
+        })
+        .catch(errRes => window.Sconsole(['updateOrderbook fail', errRes], 'msg'));
     },
     updateMyOrderList(pair) {
       let sellingAsset = {};
@@ -258,7 +259,7 @@ export default {
       } else {
         buyingAsset = { asset_type: 'credit_alphanum4', asset_code: pair.counterAsset, asset_issuer: pair.counterIssuer };
       }
-      Api.getOffers(window.server, this.$store.getters.privateKey, (res) => {
+      Api.getOffers(window.server, this.$store.getters.privateKey).then((res) => {
         if (res.records.length > 0) {
           const tmpMyOrder = [];
           const tmpPairOrder = {};
@@ -287,23 +288,34 @@ export default {
           this.myOrderList = tmpMyOrder;
           this.pairOrderObj = tmpPairOrder;
         }
-      }, (errRes) => {
+      }).catch((errRes) => {
         window.Sconsole(['updateMyList fail', errRes], 'msg');
       });
     },
     cancel(orderId) {
-      if (this.pairOrderObj[orderId]) {
+      if (this.pairOrderObj[orderId] !== undefined) {
         this.$store.commit('updateSnackmsg', this.$i18n.translate('myorder.cancel_msg'));
-        Api.cancelOrder(
-          window.server,
-          this.$store.getters.privateKey,
-          this.pairOrderObj[orderId],
-          (transResult) => {
-            window.Sconsole(['cancel order result', transResult]);
-            this.updateMyOrderList(this.pair);
-          }, (errRes) => {
-            window.Sconsole(['cancel order err', errRes, errRes.message], 'msg');
-          });
+        window.server.loadAccount(this.$store.getters.publicKey)
+          .then((account) => {
+            Api.cancelOrder(
+              window.server,
+              account,
+              this.$store.getters.privateKey,
+              this.pairOrderObj[orderId],
+              (transResult) => {
+                window.Sconsole([
+                  'my list cancel order result',
+                  transResult]);
+                this.updateMyOrderList(this.pair);
+                return null;
+              }, (errRes) => {
+                window.Sconsole([
+                  'my list cancel order err',
+                  errRes,
+                  errRes.message], 'msg');
+              });
+            return null;
+          }).catch(err => window.Sconsole(['my_order_list_cancel_failed', err], 'msg'));
       }
     },
   },

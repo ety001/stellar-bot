@@ -7,7 +7,7 @@
       </span>
     </md-table-cell>
     <md-table-cell>{{ detail.balance }}</md-table-cell>
-    <md-table-cell>{{ exchangeVals | valFilter(detail) }}</md-table-cell>
+    <md-table-cell>{{ assetVals | valFilter(detail) }}</md-table-cell>
     <md-table-cell>
       <md-input-container>
         <label></label>
@@ -38,7 +38,7 @@ export default {
     maxes: Array,
     detail: Object,
     isMaxEditable: Boolean,
-    exchangeVals: Array,
+    assetVals: Array,
     isSave: String,
   },
   computed: {
@@ -81,7 +81,7 @@ export default {
       if (len > 0) {
         for (let i = 0; i < len; i += 1) {
           if (vals[i].skey === `${asset.asset_code}_${asset.asset_issuer}`) {
-            return vals[i].exchangeVal;
+            return vals[i].assetVal;
           }
         }
       }

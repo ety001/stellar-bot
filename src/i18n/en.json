@@ -43,7 +43,7 @@
     "max": "Max",
     "params": "Parameters",
     "counter": "Counter",
-    "calculated_in_ripplefox_cny_price": "The Maximum Amount Of Current Asset You Can Hold. (Calculated in RippleFox CNY Price)",
+    "calculated_in_xlm": "The Maximum Amount Of Current Asset You Can Hold. (Calculated in SOMEONE/XLM price)",
     "buy_rate": "Buy Rate(%)",
     "sell_rate": "Sell Rate(%)",
     "value": "Value",
