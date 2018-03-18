@@ -45,7 +45,7 @@
             <md-table-head>{{ 'wallet.value' | translate }} (XLM)</md-table-head>
             <md-table-head>
               {{ $t('exchange.max') }} (XLM)
-              <md-tooltip md-direction="right">{{ $t('exchange.calculated_in_ripplefox_cny_price')}}</md-tooltip></md-table-head>
+              <md-tooltip md-direction="right">{{ $t('exchange.calculated_in_xlm')}}</md-tooltip></md-table-head>
             <md-table-head v-if="isMaxEditable"></md-table-head>
           </md-table-row>
         </md-table-header>
@@ -70,7 +70,15 @@
             </md-table-cell>
           </md-table-row>
 
-          <wallet-info-item v-for="(detail, index) in balances" :key="detail.skey" :detail="detail" :exchangeVals="exchangeVals" :isMaxEditable="isMaxEditable" :maxes="maxes" :isSave="isSave"></wallet-info-item>
+          <wallet-info-item
+            v-for="(detail, index) in balances"
+            :key="detail.skey"
+            :detail="detail"
+            :assetVals="assetVals"
+            :isMaxEditable="isMaxEditable"
+            :maxes="maxes"
+            :isSave="isSave">
+          </wallet-info-item>
         </md-table-body>
       </md-table>
     </md-card-content>
@@ -136,8 +144,8 @@ export default {
     nativeBalance() {
       return this.$store.getters.nativeBalance;
     },
-    exchangeVals() {
-      return this.$store.getters.exchangeVals;
+    assetVals() {
+      return this.$store.getters.assetVals;
     },
     maxes() {
       return this.$store.getters.maxes;
@@ -197,26 +205,31 @@ export default {
             this.$store.commit('updateIsloading', true);
             const assetCode = this.assetCode ? this.assetCode.toUpperCase() : null;
             const assetIssuer = this.assetIssuer ? this.assetIssuer.toUpperCase() : null;
-            Api.addTrustline(
-              window.server,
-              this.$store.getters.privateKey,
-              assetCode,
-              assetIssuer,
-              (res) => {
-                window.Sconsole(['addTrustline succ', res]);
-                this.$store.commit('updateIsloading', false);
-                this.$store.commit('updateSnackmsg', 'wallet.add_trustline_succ');
-                this.assetCode = '';
-                this.assetIssuer = '';
-              },
-              (errRes) => {
-                window.Sconsole(['addTrustline fail', errRes], 'msg');
-                this.$store.commit('updateIsloading', false);
-                this.$store.commit('updateSnackmsg', 'wallet.add_trustline_fail');
-                this.assetCode = '';
-                this.assetIssuer = '';
-              },
-            );
+            try {
+              Api.addTrustline(
+                window.server,
+                this.$store.getters.privateKey,
+                assetCode,
+                assetIssuer,
+                (res) => {
+                  window.Sconsole(['addTrustline succ', res]);
+                  this.$store.commit('updateIsloading', false);
+                  this.$store.commit('updateSnackmsg', 'wallet.add_trustline_succ');
+                  this.assetCode = '';
+                  this.assetIssuer = '';
+                },
+                (errRes) => {
+                  window.Sconsole(['addTrustline fail', errRes], 'msg');
+                  this.$store.commit('updateIsloading', false);
+                  this.$store.commit('updateSnackmsg', 'wallet.add_trustline_fail');
+                  this.assetCode = '';
+                  this.assetIssuer = '';
+                },
+              );
+            } catch (e) {
+              this.$store.commit('updateIsloading', false);
+              window.Sconsole(['add trustline failed', e], 'msg');
+            }
           } else {
             // console
             this.assetCode = '';

@@ -19,8 +19,8 @@ export default new Vuex.Store({
     balances: [],
     issuers: [],
     orderBook: [],
-    exchangeVals: [],
-    exchangePrices: [],
+    assetVals: [],
+    assetPrices: [],
     maxes: [],
     isloading: false,
     exchangePairs: [],
@@ -93,11 +93,11 @@ export default new Vuex.Store({
         state.orderBook.push(data);
       }
     },
-    updateExchangeVals(state, data) {
-      // window.Sconsole(['update exchangeVals']);
+    updateAssetVals(state, data) {
+      // window.Sconsole(['update assetVals']);
       const skey = data.skey;
       let existIndex = null;
-      const tmp = state.exchangeVals.filter((val, index) => {
+      const tmp = state.assetVals.filter((val, index) => {
         if (val.skey === skey) {
           existIndex = index;
           return true;
@@ -105,16 +105,16 @@ export default new Vuex.Store({
         return false;
       });
       if (tmp.length > 0) {
-        state.exchangeVals[existIndex] = data;
+        state.assetVals[existIndex] = data;
       } else {
-        state.exchangeVals.push(data);
+        state.assetVals.push(data);
       }
     },
-    updateExchangePrices(state, data) {
-      // window.Sconsole(['update exchangePrices']);
+    updateAssetPrices(state, data) {
+      // window.Sconsole(['update assetPrices']);
       const skey = data.skey;
       let existIndex = null;
-      const tmp = state.exchangePrices.filter((val, index) => {
+      const tmp = state.assetPrices.filter((val, index) => {
         if (val.skey === skey) {
           existIndex = index;
           return true;
@@ -122,9 +122,9 @@ export default new Vuex.Store({
         return false;
       });
       if (tmp.length > 0) {
-        state.exchangePrices[existIndex] = data;
+        state.assetPrices[existIndex] = data;
       } else {
-        state.exchangePrices.push(data);
+        state.assetPrices.push(data);
       }
     },
     updateMaxes(state, data) {
@@ -231,11 +231,11 @@ export default new Vuex.Store({
     orderBook(state) {
       return state.orderBook;
     },
-    exchangeVals(state) {
-      return state.exchangeVals;
+    assetVals(state) {
+      return state.assetVals;
     },
-    exchangePrices(state) {
-      return state.exchangePrices;
+    assetPrices(state) {
+      return state.assetPrices;
     },
     maxes(state) {
       return state.maxes;
