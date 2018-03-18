@@ -1,14 +1,14 @@
-# stellar-bot
+# StellarBot
 
-> A Robot For Stellar Markets
+> A Robot For Stellar Making Markets
 
-## Build Setup
+# Build Setup
 
 ``` bash
 # install dependencies
 npm install
 
-# serve with hot reload at localhost:8080
+# serve with hot reload at localhost:8088
 npm run dev
 
 # build for production with minification
@@ -16,15 +16,18 @@ npm run build
 
 # build for production and view the bundle analyzer report
 npm run build --report
-
-# run unit tests
-npm run unit
-
-# run e2e tests
-npm run e2e
-
-# run all tests
-npm test
 ```
 
-For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+# Tutorial
+
+[中文版](https://steemit.com/cn/@ety001/stellarbot)
+
+[English Version](https://steemit.com/utopian-io/@ety001/how-to-use-stellarbot-a-free-making-market-robot)
+
+# Issue
+
+If you have any question, please feel free to add an issue on [Github](https://github.com/ety001/stellar-bot/issues) or [Email me](mailto:work@domyself.me).
+
+# Contribution
+
+If you want to make a contribution to this project, Please contact me first and explain the features you want to add.
