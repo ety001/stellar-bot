@@ -19,6 +19,7 @@
   "reset": "重置配置",
   "exchange_pair": "交易对",
   "select_one": "请选择一项",
+  "help": "帮助",
   "wallet": {
     "base": "钱包",
     "config_your_private_key": "设置你的钱包私钥",

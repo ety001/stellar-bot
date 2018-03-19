@@ -37,6 +37,9 @@
           <span>v{{ version }}</span>
         </md-list-item>
         <md-list-item>
+          <a class="custom_a" href="javascript:void(0)" @click="help">{{ 'help' | translate }}</a>
+        </md-list-item>
+        <md-list-item>
           <md-button class="md-raised md-accent" @click="reset">{{ 'reset' | translate }}</md-button>
         </md-list-item>
       </md-list>
@@ -80,6 +83,13 @@ export default {
       window.localStorage.vuex = null;
       window.location.reload();
     },
+    help() {
+      if (this.$store.getters.lang === 'en') {
+        window.open('https://galactictalk.org/d/1287-how-to-use-stellarbot-a-making-market-robot');
+      } else {
+        window.open('https://steemit.com/cn/@ety001/stellarbot');
+      }
+    },
   },
   mounted() {
     // let count = 0;
@@ -98,6 +108,10 @@ export default {
   }
   .site-title a:hover {
     color: #fff !important;
+    text-decoration: none !important;
+  }
+  .custom_a {
+    color: #000 !important;
     text-decoration: none !important;
   }
 </style>
