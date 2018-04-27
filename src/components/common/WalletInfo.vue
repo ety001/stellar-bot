@@ -153,7 +153,7 @@ export default {
     },
     total() {
       const assetVals = this.$store.getters.assetVals;
-      let total = 0;
+      let total = parseFloat(this.nativeBalance);
       assetVals.forEach((v) => {
         total += parseFloat(v.assetVal);
       });
