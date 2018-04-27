@@ -65,7 +65,7 @@
         <label for="exchange_base_issuer"></label>
         <md-select name="exchange_base_issuer" md-menu-class="custom-option" id="exchange_base_issuer" v-model="baseIssuer" :placeholder="$t('exchange.base_issuer')">
           <md-option></md-option>
-          <md-option v-for="balance in balances" :key="`${balance.asset_code}_${balance.asset_issuer}`" :value="`${balance.asset_issuer}`">{{ `${balance.asset_issuer} ( ${balance.asset_code} )` }}</md-option>
+          <md-option v-for="balance in balances" :key="`${balance.asset_code}_${balance.asset_issuer}`" :value="`${balance.asset_code}_${balance.asset_issuer}`">{{ `${balance.asset_issuer} ( ${balance.asset_code} )` }}</md-option>
         </md-select>
       </md-input-container>
       <md-input-container>
@@ -79,7 +79,7 @@
         <label for="exchange_counter_issuer"></label>
         <md-select name="exchange_counter_issuer" md-menu-class="custom-option" id="exchange_counter_issuer" v-model="counterIssuer" :placeholder="$t('exchange.counter_issuer')">
           <md-option></md-option>
-          <md-option v-for="balance in balances" :key="`${balance.asset_code}_${balance.asset_issuer}`" :value="`${balance.asset_issuer}`">{{ `${balance.asset_issuer} ( ${balance.asset_code} )` }}</md-option>
+          <md-option v-for="balance in balances" :key="`${balance.asset_code}_${balance.asset_issuer}`" :value="`${balance.asset_code}_${balance.asset_issuer}`">{{ `${balance.asset_issuer} ( ${balance.asset_code} )` }}</md-option>
         </md-select>
       </md-input-container>
     </dialog-form>
@@ -132,10 +132,28 @@ export default {
         case 'add_exchange_pair':
           if (type === 'ok') {
             const baseAsset = this.baseAsset ? this.baseAsset.toUpperCase() : null;
-            const baseIssuer = this.baseIssuer ? this.baseIssuer.toUpperCase() : null;
+            let baseIssuer = this.baseIssuer ? this.baseIssuer.toUpperCase() : null;
             const counterAsset = this.counterAsset ? this.counterAsset.toUpperCase() : null;
-            const counterIssuer = this.counterIssuer ? this.counterIssuer.toUpperCase() : null;
+            let counterIssuer = this.counterIssuer ? this.counterIssuer.toUpperCase() : null;
             const balances = this.balances;
+
+            if (baseIssuer !== null) {
+              const tmp = baseIssuer.split('_');
+              if (tmp[1]) {
+                baseIssuer = tmp[1];
+              } else {
+                baseIssuer = null;
+              }
+            }
+
+            if (counterIssuer !== null) {
+              const tmp = counterIssuer.split('_');
+              if (tmp[1]) {
+                counterIssuer = tmp[1];
+              } else {
+                counterIssuer = null;
+              }
+            }
 
             // check if base asset is the same as counter asset
             if (baseAsset === counterAsset) {
@@ -143,38 +161,36 @@ export default {
               return;
             }
 
-            // check if the asset and issuer are paired
-            let baseErr = false;
-            console.log(baseAsset, baseIssuer, counterAsset, counterIssuer);
+            // check pair is correct.
             if (baseIssuer === null && baseAsset !== 'XLM') {
               this.$store.commit('updateSnackmsg', 'exchange.base_asset_and_issuer_not_paired');
               return;
             }
-            balances.forEach((el) => {
-              if (el.asset_issuer === baseIssuer) {
-                if (el.asset_code !== baseAsset) {
-                  baseErr = true;
-                }
-              }
-            });
-            if (baseErr) {
-              this.$store.commit('updateSnackmsg', 'exchange.base_asset_and_issuer_not_paired');
-              return;
-            }
 
-            let counterErr = false;
             if (counterIssuer === null && counterAsset !== 'XLM') {
               this.$store.commit('updateSnackmsg', 'exchange.counter_asset_and_issuer_not_paired');
               return;
             }
+
+            // find all baseAsset from balances by baseIssuer
+            const allBaseAssets = [];
+            // find all counterAsset from balances by counterIssuer
+            const allCounterAssets = [];
             balances.forEach((el) => {
+              if (el.asset_issuer === baseIssuer) {
+                allBaseAssets.push(el.asset_code);
+              }
               if (el.asset_issuer === counterIssuer) {
-                if (el.asset_code !== counterAsset) {
-                  counterErr = true;
-                }
+                allCounterAssets.push(el.asset_code);
               }
             });
-            if (counterErr) {
+
+            if (!allBaseAssets.includes(baseAsset)) {
+              this.$store.commit('updateSnackmsg', 'exchange.base_asset_and_issuer_not_paired');
+              return;
+            }
+
+            if (!allCounterAssets.includes(counterAsset)) {
               this.$store.commit('updateSnackmsg', 'exchange.counter_asset_and_issuer_not_paired');
               return;
             }
@@ -218,5 +234,8 @@ export default {
   },
 };
 </script>
-<style>
+<style scoped>
+.md-card-content {
+  height: 300px;
+}
 </style>

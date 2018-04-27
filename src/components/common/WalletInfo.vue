@@ -7,6 +7,7 @@
           {{ $t('address', {which: ''}) }}:
           <span>{{ walletAddress }}</span>
         </div>
+        <div class="md-subhead">Total: <span>{{ total }}</span></div>
       </md-card-header-text>
 
       <md-menu md-size="4" md-direction="bottom left">
@@ -150,6 +151,14 @@ export default {
     maxes() {
       return this.$store.getters.maxes;
     },
+    total() {
+      const assetVals = this.$store.getters.assetVals;
+      let total = 0;
+      assetVals.forEach((v) => {
+        total += parseFloat(v.assetVal);
+      });
+      return `${total} XLM`;
+    },
   },
   watch: {
   },
@@ -262,7 +271,7 @@ export default {
 };
 </script>
 <style scoped>
-.md-dialog {
-
+.md-card-content {
+  height: 300px;
 }
 </style>
