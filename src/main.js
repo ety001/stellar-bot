@@ -12,7 +12,7 @@ import transEn from './i18n/en.json';
 import transZhCn from './i18n/zh-CN.json';
 import Api from './lib/Api';
 
-const VERSION = '0.0.8-1';
+const VERSION = '0.0.9';
 const intervalTime = 5;
 // const robotIntervalTime = 20;
 const priceSensitivity = 4;
