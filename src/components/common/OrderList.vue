@@ -322,4 +322,7 @@ export default {
 };
 </script>
 <style scoped>
+.md-card-content {
+  height: 500px;
+}
 </style>

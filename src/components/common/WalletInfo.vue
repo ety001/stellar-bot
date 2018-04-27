@@ -262,7 +262,7 @@ export default {
 };
 </script>
 <style scoped>
-.md-dialog {
-
+.md-card-content {
+  height: 300px;
 }
 </style>
