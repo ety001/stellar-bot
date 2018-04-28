@@ -155,6 +155,7 @@ export default {
               }
             }
 
+            window.Sconsole(['add_pair', baseAsset, baseIssuer, counterAsset, counterIssuer], 'msg');
             // check if base asset is the same as counter asset
             if (baseAsset === counterAsset) {
               this.$store.commit('updateSnackmsg', 'exchange.base_asset_cannot_be_the_same_as_counter_asset');
@@ -164,11 +165,13 @@ export default {
             // check pair is correct.
             if (baseIssuer === null && baseAsset !== 'XLM') {
               this.$store.commit('updateSnackmsg', 'exchange.base_asset_and_issuer_not_paired');
+              window.Sconsole(['base_asset_and_issuer_not_paired', 1], 'msg');
               return;
             }
 
             if (counterIssuer === null && counterAsset !== 'XLM') {
               this.$store.commit('updateSnackmsg', 'exchange.counter_asset_and_issuer_not_paired');
+              window.Sconsole(['counter_asset_and_issuer_not_paired', 1], 'msg');
               return;
             }
 
@@ -185,13 +188,15 @@ export default {
               }
             });
 
-            if (!allBaseAssets.includes(baseAsset)) {
+            if (baseAsset !== 'XLM' && !allBaseAssets.includes(baseAsset)) {
               this.$store.commit('updateSnackmsg', 'exchange.base_asset_and_issuer_not_paired');
+              window.Sconsole(['base_asset_and_issuer_not_paired', 2], 'msg');
               return;
             }
 
-            if (!allCounterAssets.includes(counterAsset)) {
+            if (counterAsset !== 'XLM' && !allCounterAssets.includes(counterAsset)) {
               this.$store.commit('updateSnackmsg', 'exchange.counter_asset_and_issuer_not_paired');
+              window.Sconsole(['counter_asset_and_issuer_not_paired', 2], 'msg');
               return;
             }
 
