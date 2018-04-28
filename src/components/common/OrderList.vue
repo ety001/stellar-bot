@@ -6,7 +6,7 @@
       </md-card-header-text>
     </md-card-header>
 
-    <md-card-content>
+    <md-card-content class="box2">
       <md-layout md-gutter class="main-box">
         <md-layout md-flex="100">
           <md-input-container>
@@ -322,7 +322,7 @@ export default {
 };
 </script>
 <style scoped>
-.md-card-content {
+.box2 {
   height: 500px;
 }
 </style>

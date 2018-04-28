@@ -27,7 +27,7 @@
         <md-icon>save</md-icon>
       </md-button>
     </md-card-content>
-    <md-card-content>
+    <md-card-content class="box1">
       <md-table>
         <md-table-header>
           <md-table-row>
@@ -235,7 +235,7 @@ export default {
 };
 </script>
 <style scoped>
-.md-card-content {
+.box1 {
   height: 300px;
 }
 </style>
