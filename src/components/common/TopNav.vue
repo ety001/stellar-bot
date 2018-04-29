@@ -40,10 +40,32 @@
           <a class="custom_a" href="javascript:void(0)" @click="help">{{ 'help' | translate }}</a>
         </md-list-item>
         <md-list-item>
-          <md-button class="md-raised md-accent" @click="reset">{{ 'reset' | translate }}</md-button>
+          <md-button class="md-primary" @click="importConfig">{{ 'import' | translate }}</md-button>
+        </md-list-item>
+        <md-list-item>
+          <md-button class="md-warn" @click="backup">{{ 'backup' | translate }}</md-button>
+        </md-list-item>
+        <md-list-item>
+          <md-button class="md-accent" @click="reset">{{ 'reset' | translate }}</md-button>
         </md-list-item>
       </md-list>
     </md-sidenav>
+    <md-dialog-alert
+      :md-title="$t('backup')"
+      :md-content-html="backupConfig"
+      @open="onBackupOpen"
+      @close="onBackupClose"
+      ref="backup">
+    </md-dialog-alert>
+    <md-dialog-prompt
+      :md-title="$t('import')"
+      :md-ok-text="$t('done')"
+      :md-cancel-text="$t('cancel')"
+      @open="onImportOpen"
+      @close="onImportClose"
+      v-model="configStr"
+      ref="restore">
+    </md-dialog-prompt>
   </div>
 </template>
 
@@ -55,6 +77,8 @@ export default {
   data() {
     return {
       lang: this.$store.getters.lang,
+      backupConfig: '<p></p>',
+      configStr: '',
       // progress: 0,
     };
   },
@@ -88,6 +112,42 @@ export default {
         window.open('https://galactictalk.org/d/1287-how-to-use-stellarbot-a-making-market-robot');
       } else {
         window.open('https://steemit.com/cn/@ety001/stellarbot');
+      }
+    },
+    backup() {
+      this.$refs.backup.open();
+    },
+    onBackupOpen() {
+      const result = window.localStorage.vuex;
+      const warning = this.$i18n.translate('has_private_key');
+      this.backupConfig = `<pre>${result}</pre><p><b>${warning}</b></p>`;
+    },
+    onBackupClose() {
+      this.backupConfig = '<p></p>';
+    },
+    importConfig() {
+      this.$refs.restore.open();
+    },
+    onImportOpen() {
+      this.configStr = '';
+    },
+    onImportClose(btnType) {
+      switch (btnType) {
+        case 'ok':
+          try {
+            window.localStorage.vuex = JSON.stringify(JSON.parse(this.configStr));
+            setTimeout(() => {
+              window.location.reload();
+            });
+          } catch (e) {
+            window.Sconsole(['import err', e], 'msg');
+          }
+          break;
+        case 'cancel':
+          this.configStr = '';
+          break;
+        default:
+          break;
       }
     },
   },
