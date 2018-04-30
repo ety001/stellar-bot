@@ -20,6 +20,9 @@
   "exchange_pair": "交易对",
   "select_one": "请选择一项",
   "help": "帮助",
+  "backup": "备份配置",
+  "import": "导入配置",
+  "has_private_key": "注意！备份中含有你的钱包私钥，注意安全！",
   "wallet": {
     "base": "钱包",
     "config_your_private_key": "设置你的钱包私钥",
